@@ -165,7 +165,6 @@ class Graph
             }
             s.push(v);
         }
-
         void ToposortTraverse(int start, stack <int> &s)
         {
             marked.resize(numVertices, UNVISITED);
@@ -262,9 +261,9 @@ class Graph
 
                 while (w < numVertices)
                 {
-                    if ((getMark(w) != VISITED) && (dist[w] > dist[v] + weight(v, w)))
+                    if ((getMark(w) != VISITED) && (dist[w] > weight(v, w)))
                     {
-                        dist[w] = dist[v] + weight(v, w);
+                        dist[w] = weight(v, w);
                         minHeap.push({{v, w}, dist[w]});
                     }
                     w = next(v, w);
@@ -326,6 +325,49 @@ class Graph
                     cout << "INF\n";
                 else
                     cout << dist[i] << "\n";
+            }
+        }
+
+        void Prim()
+        {
+            vector<int> dist(numVertices, inf);
+            vector<int> V(numVertices, -1);
+
+            auto comp = [](pair<pair<int, int>, int> a, pair<pair<int, int>, int> b)
+            {
+                return a.second > b.second;
+            };
+            priority_queue<pair<pair<int, int>, int>, vector<pair<pair<int, int>, int>>, decltype(comp)> minHeap(comp);
+            minHeap.push({{0, 0}, 0});
+            dist[0] = 0;
+            
+            for (int i = 0; i < numVertices; i++)
+            {
+                int v, p;
+                do
+                {
+                    p = minHeap.top().first.first;
+                    v = minHeap.top().first.second;
+
+                    if (minHeap.empty())
+                        return;
+                    minHeap.pop();
+                    
+                } while (!(getMark(v) == UNVISITED));
+                
+                setMark(v, VISITED);
+                V[v] = p;
+                int w = first(v);
+
+                while (w < numVertices)
+                {
+                    if ((getMark(w) != VISITED) && (dist[w] > dist[v] + weight(v, w)))
+                    {
+                        dist[w] = dist[v] + weight(v, w);
+                        minHeap.push({{v, w}, dist[w]});
+                    }
+                    w = next(v, w);
+                }    
             }
         }
 };
