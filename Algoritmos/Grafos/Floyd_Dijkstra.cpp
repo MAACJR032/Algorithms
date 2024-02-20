@@ -12,37 +12,25 @@ using namespace std;
 class Graph
 {
     private:
-        int **matrix, *marked;
         int numVertices, numEdge;
+        vector<int> marked;
         vector<vector<int>> dist;
+        vector<vector<int>> matrix;
     public:
         Graph(int n)
         {
-            marked = new int[n];
-            matrix = new int*[n];
             numEdge = 0;
             numVertices = n;
 
+            matrix.resize(numVertices);
             for (int i = 0; i < n; i++)
-                matrix[i] = new int[n];
+                matrix[i].resize(numVertices, 0);
             
-            for (int i = 0; i < n; i++)
-                marked[i] = UNVISITED;
-            
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                    matrix[i][j] = 0;
-
             dist.resize(numVertices);
             for (int i = 0; i < numVertices; i++)
                 dist[i].resize(numVertices, inf);
-        }
-        ~Graph()
-        {
-            for (int i = 0; i < numVertices; i++)
-                delete[] matrix[i];
-            delete[] matrix;
-            delete[] marked;
+            
+            marked.resize(numVertices, UNVISITED);
         }
         
         int first(int v)
@@ -76,11 +64,11 @@ class Graph
         {
             if (matrix[i][j] == 0)
                 numEdge++;
-            if (matrix[j][i] == 0)
-                numEdge++;
+            // if (matrix[j][i] == 0)
+            //     numEdge++;
             
             matrix[i][j] = weight;
-            matrix[j][i] = weight;
+            // matrix[j][i] = weight;
         }
 
         void delEdge(int i, int j)
@@ -133,6 +121,13 @@ class Graph
                 // pos-visit
             }
         }
+        void BFSTraverse(int start)
+        {
+            marked.resize(numVertices, UNVISITED);
+            for (int i = start; i < numVertices; i++)
+                if (getMark(i) == UNVISITED)
+                    BFS(i);
+        }
 
         void DFS(int start)
         {
@@ -149,20 +144,9 @@ class Graph
             }
             // pos-visit
         }
-
-        void BFSTransverse(int start)
+        void DFSTraverse(int start)
         {
-            for (int i = 0; i < numVertices; i++)
-                setMark(i, UNVISITED);
-            for (int i = start; i < numVertices; i++)
-                if (getMark(i) == UNVISITED)
-                    BFS(i);
-        }
-
-        void DFSTransverse(int start)
-        {
-            for (int i = 0; i < numVertices; i++)
-                setMark(i, UNVISITED);
+            marked.resize(numVertices, UNVISITED);
             for (int i = start; i < numVertices; i++)
                 if (getMark(i) == UNVISITED)
                     DFS(i);
@@ -182,10 +166,9 @@ class Graph
             s.push(v);
         }
 
-        void ToposortTransverse(int start, stack <int> &s)
+        void ToposortTraverse(int start, stack <int> &s)
         {
-            for (int i = 0; i < numVertices; i++)
-                setMark(i, UNVISITED);
+            marked.resize(numVertices, UNVISITED);
             for (int i = start; i < numVertices; i++)
                 if (getMark(i) == UNVISITED)
                     toposort(i, s);
@@ -250,8 +233,11 @@ class Graph
             vector<int> dist(numVertices, inf);
             vector<int> parents(numVertices, -1);
 
-            // fila de prioridade para armazenar os vértices que precisam ser explorados
-            priority_queue<pair<pair<int, int>, int>, vector<pair<pair<int, int>, int>>, greater<pair<pair<int, int>, int>>> minHeap;
+            auto comp = [](pair<pair<int, int>, int> a, pair<pair<int, int>, int> b)
+            {
+                return a.second > b.second;
+            };
+            priority_queue<pair<pair<int, int>, int>, vector<pair<pair<int, int>, int>>, decltype(comp)> minHeap(comp);
             minHeap.push({{source, source}, 0});
             dist[source] = 0;
             
@@ -263,12 +249,11 @@ class Graph
                     p = minHeap.top().first.first;
                     v = minHeap.top().first.second;
 
-                    minHeap.pop();
-
                     if (minHeap.empty())
                         return;
+                    minHeap.pop();
                     
-                } while (getMark(v) != UNVISITED);
+                } while (!(getMark(v) == UNVISITED));
                 
                 setMark(v, VISITED);
                 parents[v] = p;
@@ -278,12 +263,11 @@ class Graph
                 {
                     if ((getMark(w) != VISITED) && (dist[w] > dist[v] + weight(v, w)))
                     {
-                        dist[w] > dist[v] + weight(v, w);
+                        dist[w] = dist[v] + weight(v, w);
                         minHeap.push({{v, w}, dist[w]});
                     }
                     w = next(v, w);
-                }
-                
+                }    
             }
 
             // Imprime as distâncias mínimas a partir da fonte

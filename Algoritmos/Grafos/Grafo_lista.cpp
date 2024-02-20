@@ -133,7 +133,7 @@ class Graph
             }
             // pos-visit
         }
-        void DFSTransverse(int start)
+        void DFSTraverse(int start)
         {
             for (int i = 0; i < numVertices; i++)
                 setMark(i, UNVISITED);
@@ -169,7 +169,7 @@ class Graph
                 // pos-visit
             }
         }
-        void BFSTransverse(int start)
+        void BFSTraverse(int start)
         {
             for (int i = 0; i < numVertices; i++)
                 setMark(i, UNVISITED);
@@ -192,7 +192,7 @@ class Graph
             s.push(v);
         }
 
-        void ToposortTransverse(int start, stack <int> &s)
+        void ToposortTraverse(int start, stack <int> &s)
         {
             for (int i = 0; i < numVertices; i++)
                 setMark(i, UNVISITED);
@@ -207,7 +207,7 @@ int main()
     int n, m;
     cin >> n >> m;
 
-    Graph g(n+1);
+    Graph g(n);
     int in_degree[n] = {0};
     for (int j = 0; j < m; j++)
     {
@@ -219,7 +219,7 @@ int main()
     }
     
     stack <int> s;
-    g.ToposortTransverse(0, s);
+    g.ToposortTraverse(0, s);
 
     for (int i = 0; s.size() > 0; i++)
     {

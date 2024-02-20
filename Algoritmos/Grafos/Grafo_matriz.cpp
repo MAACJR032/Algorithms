@@ -9,32 +9,20 @@ using namespace std;
 class Graph
 {
     private:
-        int **matrix, *marked;
         int numVertices, numEdge;
+        vector<int> marked;
+        vector<vector<int>> matrix;
     public:
         Graph(int n)
         {
-            marked = new int[n];
-            matrix = new int*[n];
             numEdge = 0;
             numVertices = n;
 
+            matrix.resize(numVertices);
             for (int i = 0; i < n; i++)
-                matrix[i] = new int[n];
+                matrix[i].resize(numVertices, 0);
             
-            for (int i = 0; i < n; i++)
-                marked[i] = UNVISITED;
-            
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                    matrix[i][j] = 0;
-        }
-        ~Graph()
-        {
-            for (int i = 0; i < numVertices; i++)
-                delete[] matrix[i];
-            delete[] matrix;
-            delete[] marked;
+            marked.resize(numVertices, UNVISITED);
         }
         
         int first(int v)
@@ -136,6 +124,14 @@ class Graph
                 // pos-visit
             }
         }
+        void BFSTraverse(int start)
+        {
+            for (int i = 0; i < numVertices; i++)
+                setMark(i, UNVISITED);
+            for (int i = start; i < numVertices; i++)
+                if (getMark(i) == UNVISITED)
+                    BFS(i);
+        }
 
         void DFS(int start)
         {
@@ -152,17 +148,7 @@ class Graph
             }
             // pos-visit
         }
-
-        void BFSTransverse(int start)
-        {
-            for (int i = 0; i < numVertices; i++)
-                setMark(i, UNVISITED);
-            for (int i = start; i < numVertices; i++)
-                if (getMark(i) == UNVISITED)
-                    BFS(i);
-        }
-
-        void DFSTransverse(int start)
+        void DFSTraverse(int start)
         {
             for (int i = 0; i < numVertices; i++)
                 setMark(i, UNVISITED);
@@ -194,7 +180,7 @@ class Graph
             s.push(v);
         }
 
-        void ToposortTransverse(int start, stack <int> &s)
+        void ToposortTraverse(int start, stack <int> &s)
         {
             for (int i = 0; i < numVertices; i++)
                 setMark(i, UNVISITED);
@@ -236,7 +222,7 @@ int main()
     }
 
     stack <int> s;
-    g.ToposortTransverse(0, s);
+    g.ToposortTraverse(0, s);
 
     for (int i = 0; s.size() > 0; i++)
     {

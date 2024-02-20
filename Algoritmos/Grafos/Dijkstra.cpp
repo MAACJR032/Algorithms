@@ -42,7 +42,7 @@ class Graph
         void setEdge(int src, int dest, int weight)
         {
             adj[src].push_back({dest, weight});
-            adj[dest].push_back({src, weight});
+            // adj[dest].push_back({src, weight});
         }
         bool isEdge(int i, int j)
         {
@@ -52,6 +52,16 @@ class Graph
                     return true;
             }
             return false;
+        }
+
+        int weight(int src, int dest)
+        {
+            for (auto edge : adj[src])
+            {
+                if (edge.first == dest)
+                    return edge.second; // Return the weight of the edge if it exists
+            }
+            return inf; // Return -1 if the edge doesn't exist
         }
 
         int getMark(int v)
@@ -89,10 +99,8 @@ class Graph
             }
             // pos-visit
         }
-        void DFSTransverse(int start)
+        void DFSTraverse(int start)
         {
-            // for (int i = 0; i < numVertices; i++)
-            //     setMark(i, UNVISITED);
             marked.resize(numVertices, UNVISITED);
             for (int i = start; i < numVertices; i++)
                 if (getMark(i) == UNVISITED)
@@ -126,10 +134,8 @@ class Graph
                 // pos-visit
             }
         }
-        void BFSTransverse(int start)
+        void BFSTraverse(int start)
         {
-            // for (int i = 0; i < numVertices; i++)
-            //     setMark(i, UNVISITED);
             marked.resize(numVertices, UNVISITED);
             for (int i = start; i < numVertices; i++)
                 if (getMark(i) == UNVISITED)
@@ -150,10 +156,8 @@ class Graph
             s.push(v);
         }
 
-        void ToposortTransverse(int start, stack <int> &s)
+        void ToposortTraverse(int start, stack <int> &s)
         {
-            // for (int i = 0; i < numVertices; i++)
-            //     setMark(i, UNVISITED);
             marked.resize(numVertices, UNVISITED);
             for (int i = start; i < numVertices; i++)
                 if (getMark(i) == UNVISITED)
@@ -163,29 +167,43 @@ class Graph
         void Dijkstra(int source)
         {
             vector<int> dist(numVertices, inf);
+            vector<int> parents(numVertices, -1);
+
+            auto comp = [](pair<pair<int, int>, int> a, pair<pair<int, int>, int> b)
+            {
+                return a.second > b.second;
+            };
+            priority_queue<pair<pair<int, int>, int>, vector<pair<pair<int, int>, int>>, decltype(comp)> minHeap(comp);
+            minHeap.push({{source, source}, 0});
             dist[source] = 0;
-
-            // fila de prioridade para armazenar os vértices que precisam ser explorados
-            priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> minHeap;
-            minHeap.push({0, source});
-
+            
             for (int i = 0; i < numVertices; i++)
             {
-                int u = minHeap.top().second;
-                minHeap.pop();
-
-                for (auto aux : adj[u])
+                int v, p;
+                do
                 {
-                    int v = aux.first;
-                    int weight = aux.second;
+                    p = minHeap.top().first.first;
+                    v = minHeap.top().first.second;
 
-                    // Relaxamento da aresta (u, v)
-                    if ((dist[u] != inf) && (dist[u] + weight < dist[v]))
+                    if (minHeap.empty())
+                        return;
+                    minHeap.pop();
+                    
+                } while (!(getMark(v) == UNVISITED));
+                
+                setMark(v, VISITED);
+                parents[v] = p;
+                int w = first(v);
+
+                while (w < numVertices)
+                {
+                    if ((getMark(w) != VISITED) && (dist[w] > dist[v] + weight(v, w)))
                     {
-                        dist[v] = dist[u] + weight;
-                        minHeap.push({dist[v], v});
+                        dist[w] = dist[v] + weight(v, w);
+                        minHeap.push({{v, w}, dist[w]});
                     }
-                }
+                    w = next(v, w);
+                }    
             }
 
             // Imprime as distâncias mínimas a partir da fonte
@@ -198,7 +216,7 @@ class Graph
                 else
                     cout << dist[i] << "\n";
             }
-    }
+        }
 };
 
 int main()
