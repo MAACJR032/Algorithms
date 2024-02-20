@@ -248,28 +248,42 @@ class Graph
         void Dijkstra(int source)
         {
             vector<int> dist(numVertices, inf);
-            dist[source] = 0;
+            vector<int> parents(numVertices, -1);
 
             // fila de prioridade para armazenar os vértices que precisam ser explorados
-            priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> minHeap;
-            minHeap.push({0, source});
-
+            priority_queue<pair<pair<int, int>, int>, vector<pair<pair<int, int>, int>>, greater<pair<pair<int, int>, int>>> minHeap;
+            minHeap.push({{source, source}, 0});
+            dist[source] = 0;
+            
             for (int i = 0; i < numVertices; i++)
             {
-                int u = minHeap.top().second;
-                minHeap.pop();
-
-                for (int i = 0; i < numVertices; i++)
+                int v, p;
+                do
                 {
-                    int v = next(u, i);
-                    int weight = matrix[u][v];
+                    p = minHeap.top().first.first;
+                    v = minHeap.top().first.second;
 
-                    if ((dist[u] != inf) && (dist[u] + weight < dist[v]))
+                    minHeap.pop();
+
+                    if (minHeap.empty())
+                        return;
+                    
+                } while (getMark(v) != UNVISITED);
+                
+                setMark(v, VISITED);
+                parents[v] = p;
+                int w = first(v);
+
+                while (w < numVertices)
+                {
+                    if ((getMark(w) != VISITED) && (dist[w] > dist[v] + weight(v, w)))
                     {
-                        dist[v] = dist[u] + weight;
-                        minHeap.push({dist[v], v});
+                        dist[w] > dist[v] + weight(v, w);
+                        minHeap.push({{v, w}, dist[w]});
                     }
-                }  
+                    w = next(v, w);
+                }
+                
             }
 
             // Imprime as distâncias mínimas a partir da fonte
