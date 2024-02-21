@@ -330,6 +330,7 @@ class Graph
 
         void Prim()
         {
+            marked.resize(numVertices, UNVISITED);
             vector<int> dist(numVertices, inf);
             vector<int> V(numVertices, -1);
 
@@ -361,14 +362,30 @@ class Graph
 
                 while (w < numVertices)
                 {
-                    if ((getMark(w) != VISITED) && (dist[w] > dist[v] + weight(v, w)))
+                    if ((getMark(w) != VISITED) && (dist[w] > weight(v, w)))
                     {
-                        dist[w] = dist[v] + weight(v, w);
+                        dist[w] = weight(v, w);
                         minHeap.push({{v, w}, dist[w]});
                     }
                     w = next(v, w);
                 }    
             }
+
+            int cont = 0;
+            for (int i = 0; i < numVertices; i++)
+            {
+                if (dist[i] == inf)
+                {
+                    cout << "INF\n";
+                    return;
+                }
+                else
+                {
+                    cout << dist[i] << endl;
+                    cont += dist[i];
+                }
+            }
+            cout << cont << endl;
         }
 };
 /*
@@ -394,10 +411,11 @@ int main()
         g.setEdge(a, b, w);
     }
     
-    g.PrintMatrix();
-    g.Dijkstra(v);
-    g.Floyd(v);
-    g.BellmanFord(v);
+    // g.PrintMatrix();
+    // g.Dijkstra(v);
+    // g.Floyd(v);
+    // g.BellmanFord(v);
+    g.Prim();
 
     return 0;
 }
