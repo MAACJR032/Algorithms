@@ -39,18 +39,24 @@ class Graph
         }
         void setEdge(int src, int dest, int weight)
         {
+            if (isEdge(src, dest))
+            {
+                if (adj[src][dest].second < weight)
+                    weight = adj[src][dest].second;
+            }
+            
             adj[src].push_back({dest, weight});
             adj[dest].push_back({src, weight});
         }
-        // bool isEdge(int i, int j)
-        // {
-        //     for (auto k : adj[i])
-        //     {   
-        //         if (k.first == j)
-        //             return true;
-        //     }
-        //     return false;
-        // }
+        bool isEdge(int i, int j)
+        {
+            for (auto k : adj[i])
+            {   
+                if (k.first == j)
+                    return true;
+            }
+            return false;
+        }
         // int weight(int src, int dest)
         // {
         //     for (auto edge : adj[src])
@@ -71,6 +77,7 @@ class Graph
 
         void Prim()
         {
+            int range = 0;
             auto comp = [](pair<int, int> a, pair<int, int> b)
             {
                 return a.second > b.second;
@@ -79,126 +86,41 @@ class Graph
             minHeap.push({0, 0});
             dist[0] = 0;
             
-            // for (int i = 0; i < numVertices; i++)
-            // {
-            //     int v;
-            //     do
-            //     {
-            //         v = minHeap.top().first;
-
-            //         if (minHeap.empty())
-            //             return;
-            //         minHeap.pop();
-                    
-            //     } while (!(getMark(v) == UNVISITED));
-                
-            //     setMark(v, VISITED);
-            //     int w = first(v);
-
-            //     while (w < numVertices)
-            //     {
-            //         if ((getMark(w) != VISITED) && (dist[w] > weight(v, w)))
-            //         {
-            //             dist[w] = weight(v, w);
-            //             minHeap.push({w, dist[w]});
-            //         }
-            //         int aux = next(v, w);
-            //         if (aux == w)
-            //             return;
-            //         else
-            //             w = aux;
-            //     }    
-            // }
-
-            // while (!minHeap.empty())
             for (int i = 0; i < numVertices; i++)
             {
-                int v = minHeap.top().first;
-                minHeap.pop();
-
-                if (getMark(v) == VISITED)
-                    continue;
-
+                int v;
+                do
+                {
+                    if (minHeap.empty())
+                        return;
+                    
+                    v = minHeap.top().first;
+                    minHeap.pop();
+                    
+                } while (getMark(v) == VISITED);
+                
                 setMark(v, VISITED);
 
-                for (int i = 0; i < adj[v].size(); i++)
+                for(auto& w : adj[v])
                 {
-                    int w = adj[v][i].first;
-                    int weight = adj[v][i].second;
-
-                    if (getMark(w) != VISITED && dist[w] > weight)
+                    if ((getMark(w.first) == UNVISITED) && (dist[w.first] > w.second))
                     {
-                        dist[w] = weight;
-                        minHeap.push({w, dist[w]});
+                        dist[w.first] = w.second;
+                        if (dist[w.first] > range)
+                            range = dist[w.first];
+                        
+                        minHeap.push({w.first, dist[w.first]});
                     }
                 }
             }
-
-            int maxEdgeWeight = 0;
-            for (int i = 0; i < numVertices; i++)
-                if (dist[i] != inf && dist[i] > maxEdgeWeight)
-                    maxEdgeWeight = dist[i];
-            if (maxEdgeWeight == 0)
-                cout << "IMPOSSIBLE\n";
-            else
-                cout << maxEdgeWeight << '\n';      
-        }
-        void find_min_range()
-        {
-            int min_range = 0;
-            for (int i = 0; i < numVertices; i++)
-            {
-                if (dist[i] == inf)
-                {
-                    cout << "IMPOSSIBLE\n";
-                    return;
-                }
-                else if (dist[i] > min_range)
-                    min_range = dist[i];
-            }
-            cout << min_range << '\n';
-        }
-
-        // void Floyd()
-        // {
-        //     // dist = new int*[numVertices];
-        //     int min_range = 0;
-        //     for (int i = 0; i < numVertices; i++)
-        //         dist[i][i] = 0;
-        //         // dist[i] = new int[numVertices];
-                
-        //     for (int k = 0; k < numVertices; k++)
-        //     {
-        //         for (int i = 0; i < numVertices; i++)
-        //         {
-        //             for (int j = 0; j < numVertices; j++)
-        //             {
-        //                 if ((dist[i][k] != inf) && (dist[k][j] != inf) && (dist[i][j] > dist[i][k] + dist[k][j]))
-        //                     dist[i][j] = dist[i][k] + dist[k][j];
-        //             }
-        //         }
-        //     }
+            // for (int i = 0; i < dist.size(); i++)
+            //     cout << dist[i];
             
-        //     for (int i = 0; i < numVertices; i++)
-        //     {
-        //         for (int j = 0; j < numVertices; j++)
-        //         {                    
-        //             if (dist[i][j] == inf)
-        //             {
-        //                 cout << "IMPOSSIBLE\n";
-        //                 return;
-        //             }
-        //             else if ((i != j))
-        //             {
-        //                 if (isEdge(i, j) && (dist[i][j] > min_range))
-        //                     min_range = dist[i][j];
-        //             }
-        //         }
-        //     }
-        //     cout << min_range << '\n';
-        // }
+            cout << range << '\n';
+        }
 };
 /*
+5 7
 0 1 10
 0 2 3
 0 3 20
