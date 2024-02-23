@@ -193,17 +193,15 @@ class Graph
                 
                 setMark(v, VISITED);
                 parents[v] = p;
-                int w = first(v);
 
-                while (w < numVertices)
+                for(auto w : adj[v])
                 {
-                    if ((getMark(w) != VISITED) && (dist[w] > dist[v] + weight(v, w)))
+                    if ((getMark(w.first) == UNVISITED) && (dist[w.first] > w.second))
                     {
-                        dist[w] = dist[v] + weight(v, w);
-                        minHeap.push({{v, w}, dist[w]});
+                        dist[w.first] = w.second;
+                        minHeap.push({{v, w.first},  dist[w.first]});
                     }
-                    w = next(v, w);
-                }    
+                }
             }
 
             // Imprime as distâncias mínimas a partir da fonte
