@@ -330,6 +330,7 @@ class Graph
 
         void Prim()
         {
+            marked.resize(numVertices, UNVISITED);
             vector<int> dist(numVertices, inf);
             vector<int> V(numVertices, -1);
 
@@ -370,6 +371,7 @@ class Graph
                 }    
             }
 
+<<<<<<< HEAD
             for (int i = 0; i < numVertices; i++)
             {
                 cout << "Para o vertice " << i << ": ";
@@ -378,6 +380,23 @@ class Graph
                 else
                     cout << dist[i] << "\n";
             }
+=======
+            int cont = 0;
+            for (int i = 0; i < numVertices; i++)
+            {
+                if (dist[i] == inf)
+                {
+                    cout << "INF\n";
+                    return;
+                }
+                else
+                {
+                    cout << dist[i] << endl;
+                    cont += dist[i];
+                }
+            }
+            cout << cont << endl;
+>>>>>>> 4410dd95de9371943ec07ed8d5776cf3932f4280
         }
 };
 /*
