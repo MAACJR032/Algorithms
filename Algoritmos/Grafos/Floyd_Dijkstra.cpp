@@ -28,7 +28,7 @@ class Graph
             
             Dist.resize(numVertices);
             for (int i = 0; i < numVertices; i++)
-                Dist[i].resize(numVertices, inf);
+                Dist[i].resize(numVertices);
             
             marked.resize(numVertices, UNVISITED);
         }
@@ -352,7 +352,7 @@ int main()
         g.setEdge(a, b, w);
     }
     
-    g.PrintMatrix();
+    // g.PrintMatrix();
     g.Dijkstra(v);
     g.Floyd(v);
     g.BellmanFord(v);

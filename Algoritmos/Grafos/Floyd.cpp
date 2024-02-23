@@ -53,7 +53,10 @@ class Graph
             for (auto k : adj[i])
             {   
                 if (k.first == j)
+                {
+                    dist[i][j] = k.second;
                     return true;
+                }
             }
             return false;
         }
@@ -153,7 +156,6 @@ class Graph
             }
             s.push(v);
         }
-
         void ToposortTraverse(int start, stack <int> &s)
         {
             // for (int i = 0; i < numVertices; i++)
@@ -168,16 +170,14 @@ class Graph
         {
             for (int i = 0; i < numVertices; i++)
             {
-                auto curr = adj[i].begin();
-                for (int j = 0; curr != adj[i].end(); j++)
+                for (int j = 0; j < numVertices; j++)
                 {
                     if (i == j)
                         dist[i][j] = 0;
                     else if (isEdge(i, j))
-                        dist[i][j] = curr->second;
+                        continue;
                     else
                         dist[i][j] = inf;
-                    curr++;
                 }
             }
             
@@ -218,7 +218,6 @@ int main()
         g.setEdge(a, b, w);
     }
     
-    // g.Dijkstra(v);
     g.Floyd(v);
 
     return 0;

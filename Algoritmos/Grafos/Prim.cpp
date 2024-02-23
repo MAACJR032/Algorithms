@@ -261,9 +261,9 @@ class Graph
 
                 while (w < numVertices)
                 {
-                    if ((getMark(w) != VISITED) && (dist[w] > weight(v, w)))
+                    if ((getMark(w) != VISITED) && (dist[w] > dist[v] + weight(v, w)))
                     {
-                        dist[w] = weight(v, w);
+                        dist[w] = dist[v] + weight(v, w);
                         minHeap.push({{v, w}, dist[w]});
                     }
                     w = next(v, w);
@@ -361,13 +361,22 @@ class Graph
 
                 while (w < numVertices)
                 {
-                    if ((getMark(w) != VISITED) && (dist[w] > dist[v] + weight(v, w)))
+                    if ((getMark(w) != VISITED) && (dist[w] > weight(v, w)))
                     {
-                        dist[w] = dist[v] + weight(v, w);
+                        dist[w] = weight(v, w);
                         minHeap.push({{v, w}, dist[w]});
                     }
                     w = next(v, w);
                 }    
+            }
+
+            for (int i = 0; i < numVertices; i++)
+            {
+                cout << "Para o vertice " << i << ": ";
+                if (dist[i] == inf)
+                    cout << "INF\n";
+                else
+                    cout << dist[i] << "\n";
             }
         }
 };
@@ -394,10 +403,11 @@ int main()
         g.setEdge(a, b, w);
     }
     
-    g.PrintMatrix();
-    g.Dijkstra(v);
-    g.Floyd(v);
-    g.BellmanFord(v);
+    // g.PrintMatrix();
+    // g.Dijkstra(v);
+    // g.Floyd(v);
+    // g.BellmanFord(v);
+    g.Prim();
 
     return 0;
 }
