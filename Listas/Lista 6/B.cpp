@@ -72,7 +72,7 @@ class Graph
                 
                 setMark(v, VISITED);
 
-                for(auto w : adj[v])
+                for(auto &w : adj[v])
                 {
                     if ((getMark(w.first) == UNVISITED) && (dist[w.first] > w.second))
                     {
