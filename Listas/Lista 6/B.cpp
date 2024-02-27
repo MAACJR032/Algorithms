@@ -67,7 +67,7 @@ class Graph
                     }
                     
                     v = minHeap.top().first;
-                    minHeap.pop();                  
+                    minHeap.pop();
                 } while (getMark(v) == VISITED);
                 
                 setMark(v, VISITED);
