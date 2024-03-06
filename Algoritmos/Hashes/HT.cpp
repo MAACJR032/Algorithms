@@ -93,11 +93,8 @@ class HashTable
                 if (table[i].size() == 0)
                     continue;
                 
-                auto curr = table[i].begin();
-                for (; curr != table[i].end(); curr++)
-                {
+                for (auto curr = table[i].begin(); curr != table[i].end(); curr++)
                     cout << "Key: " << curr->first << " Value: " << curr->second << '\n';
-                }     
             }
             return;
         }
@@ -111,7 +108,6 @@ int main()
         cout << "Its empty\n";
     else
         cout << "Not empty\n";
-    
 
     return 0;
 }

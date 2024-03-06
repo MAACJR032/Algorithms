@@ -29,7 +29,7 @@ int main()
 
 int BinarySearch(int list[], int key, int size)
 {
-    int l=0, r = size-1;
+    int l = 0, r = size-1;
 
     do
     {

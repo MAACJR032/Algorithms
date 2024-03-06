@@ -2,7 +2,22 @@
 #include <chrono>
 using namespace std::chrono;
 
-int BinarySearch(int list[], int l, int r, int key);
+int BinarySearch(int list[], int l, int r, int key)
+{
+    if (r >= l)
+    {
+        int m = (l+r)/2;
+
+        if (key == list[m])
+            return m;
+        else if (key < list[m])
+            return BinarySearch(list, l, m-1, key);
+        else
+            return BinarySearch(list, m+1, r, key);
+    }
+    else
+        return -1;
+}
 
 int main()
 {
@@ -29,21 +44,4 @@ int main()
         std::cout << "Element at index: " << index << '\n';
 
     return 0;
-}
-
-int BinarySearch(int list[], int l, int r, int key)
-{
-    if (r >= l)
-    {
-        int m = (l+r)/2;
-
-        if (key == list[m])
-            return m;
-        else if (key < list[m])
-            return BinarySearch(list, l, m-1, key);
-        else
-            return BinarySearch(list, m+1, r, key);
-    }
-    else
-        return -1;
 }

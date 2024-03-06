@@ -85,11 +85,11 @@ int peek(Queue *q, bool *status)
 {
     if (q->size == 0)
     {
-        *status = false;
+        (*status) = false;
         return NULL;
     }
 
-    *status = true;
+    (*status) = true;
     return q->head->element;
 }
 

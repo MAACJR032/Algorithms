@@ -40,6 +40,20 @@ class BST
             
             return rt;
         }
+        Node *getmin(Node *rt)
+        {
+            if (rt->left == nullptr)
+                return rt;
+            return getmin(rt->left);
+        }
+        Node *deletemin(Node *rt)
+        {
+            if (rt->left == nullptr)
+                return rt->right;
+
+            rt->left = deletemin(rt->left);
+            return rt;
+        }
         Node *removehelp(Node *rt, int element)
         {
             if (rt == nullptr)
@@ -82,21 +96,6 @@ class BST
         {
             root = inserthelp(root, element);
             count++;
-        }
-        
-        Node *getmin(Node *rt)
-        {
-            if (rt->left == nullptr)
-                return rt;
-            return getmin(rt->left);
-        }
-        Node *deletemin(Node *rt)
-        {
-            if (rt->left == nullptr)
-                return rt->right;
-
-            rt->left = deletemin(rt->left);
-            return rt;
         }
 
         int Remove(int element)

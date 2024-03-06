@@ -11,7 +11,7 @@ void CreateHash(int t[])
 
 int HashFunction(int key)
 {
-    return abs(key%TAM);
+    return abs(key % TAM);
 }
 
 int search(int t[], int key)
@@ -20,13 +20,11 @@ int search(int t[], int key)
 
     while (t[index] != 0)
     {
+        // retornar o índice
         if (t[index] == key)
-        {
-            // Retornar indice
             return t[index];
-        }
         else
-            index = HashFunction(index+1);
+            index = HashFunction(index + 1);
     }
     return 0;
 }
@@ -55,7 +53,7 @@ int main()
 {
     int hash[TAM];
     int x, found;
-    int op=0;
+    int op = 0;
 
     CreateHash(hash);
     do

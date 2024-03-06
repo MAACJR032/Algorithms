@@ -1,6 +1,5 @@
 #include <iostream>
 #include <chrono>
-
 using namespace std::chrono;
 int partition(int list[], int l, int r, int tam);
 void quicksort(int list[], int l, int r, int size);

@@ -39,6 +39,5 @@ int main()
     cout << "Elemento do meio: " << num1.at(size/2) << '\n';
 
     num1.at(2) = 20;
-    num1.;
     return 0;
 }

@@ -6,18 +6,18 @@ void merge_sort(int list[], int l, int r);
 
 int main()
 {
-    int list[4];
+    int size;
+    cin >> size;
+    int list[size];
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < size; i++)
         cin >> list[i];
     
-    int tam = sizeof(list)/sizeof(int);
+    merge_sort(list, 0, size-1);
 
-    merge_sort(list, 0, tam-1);
-
-    for (int i = 0; i < tam; i++)
-        std::cout << list[i]<<" ";
-    std::cout<<'\n';
+    for (int i = 0; i < size; i++)
+        cout << list[i]<<" ";
+    cout<<'\n';
     
     return 0;
 }
@@ -25,7 +25,7 @@ int main()
 void merge(int list[], int l, int m, int r, int tam)
 {
     int i = l; // índice inicial da metade esquerda
-    int j = m+1; // índice inicial da metade direita
+    int j = m + 1; // índice inicial da metade direita
     int k = l; // índice inicial do temporário
 
     int tmp[tam]; // temporário

@@ -1,33 +1,27 @@
 #include <iostream>
+using namespace std;
 
-void Swap(int* a, int* b);
+void Swap(int *a, int *b);
 int Partition(int array[], int begin, int end);
 void QuickSort(int array[], int begin, int end);
 
 int main()
 {
-    int size=0;
+    int size = 0;
 
-    std::cin >> size;
+    cin >> size;
     int list[size];
 
     for (int i = 0; i < size; i++)
-        std::cin >> list[i];
+        cin >> list[i];
     
     QuickSort(list, 0, size-1);
 
     for (int i = 0; i < size; i++)
-        std::cout << list[i] << " ";
-    std::cout << '\n';
+        cout << list[i] << " ";
+    cout << '\n';
 
     return 0;
-}
-
-void Swap(int* a, int* b)
-{
-    int temp = *a;
-    *a = *b;
-    *b = temp;
 }
 
 int Partition(int array[], int begin, int end)
@@ -36,20 +30,20 @@ int Partition(int array[], int begin, int end)
     int i = begin, j = end + 1;
     do
     {
-        do
-        {
+        do {
             i++;
-        }while(pivot > array[i]);
+        } while(pivot > array[i]);
         
-        do
-        {
+        do {
             j--;
-        }while(pivot < array[j]);
+        } while(pivot < array[j]);
+    
+        swap(array[i], array[j]);
+    } while(i < j);
 
-        Swap(&array[i], &array[j]);
-    }while(i < j);
-    Swap(&array[i], &array[j]);
-    Swap(&array[begin], &array[j]);
+    swap(array[i], array[j]);
+    swap(array[begin], array[j]);
+
     return j;
 }
 
