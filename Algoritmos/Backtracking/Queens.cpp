@@ -2,25 +2,37 @@
 #include <vector>
 using namespace std;
 
-bool valid(vector<vector<int>> m, int l, int i)
+bool valid(vector<vector<int>> board, int row, int col)
 {
-    
+    int i, j; 
+    for (i = 0; i < col; i++) 
+        if (board[i][row]) 
+            return false; 
+
+    for (i = row, j = col; i >= 0 && j >= 0; i--, j--) 
+        if (board[j][i]) 
+            return false; 
+    for (i = row, j = col; j >= 0 && i < board.size(); i++, j--) 
+        if (board[j][i]) 
+            return false; 
+  
+    return true;
 }
-bool qns(int l, vector<vector<int>> m)
+bool qns(int col, vector<vector<int>> &board)
 {
-    if (l == m.size())
+    if (col == board.size())
         return true;
     else
     {
-        for (int i = 0; i < m.size(); i++)
+        for (int i = 0; i < board.size(); i++)
         {
-            if (valid(m, l, i))
+            if (valid(board, i, col))
             {
-                m[l][i] = 1;
+                board[col][i] = 1;
 
-                if (qns(l+1, m))
+                if (qns(col+1, board))
                     return true;
-                else m[l][i] = 0;
+                else board[col][i] = 0;
             }
         }
         return false;
@@ -32,10 +44,21 @@ int main()
     int n = 0;
     cin >> n;
 
-    vector<vector<int>> a;
-    a.resize(n);
-    for (int i = 0; i < 10; i++)
-        a[i].resize(n);
+    vector<vector<int>> board;
+    board.resize(n);
+    for (int i = 0; i < n; i++)
+        board[i].resize(n, 0);
 
+    if (qns(0, board))
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+                cout << board[i][j] << " ";
+            cout << '\n';
+        }
+    }
+    else cout << "Impossible\n";
+    
     return 0;
 }
