@@ -1,130 +1,83 @@
 #include <iostream>
 #include <vector>
-#include <queue>
+#define Visited 1
+#define Unvisited 0
 using namespace std;
 
-bool is_valid(int i, int j, vector<vector<int>> board, int rows)
+const int moves_row[] = {-2, -2, -1, -1, 1, 1, 2, 2};
+const int moves_col[] = {-1, 1, -2, 2, -2, 2, -1, 1};
+
+bool Is_valid(vector<vector<int>> board, int row, int col)
 {
-    if (i >= 0 && i < rows && j >= 0 && j < board[i].size() && board[i][j] == -1)
+    if ((row >= 0) && (row < 10) && (col >= 0) && (col < 10) && (board[row][col] == 0))
         return true;
     return false;
 }
 
-bool knight_tour(vector<vector<int>> &board, int board_size, int rows, int i, int j, vector<pair<int, int>> moves)
+bool KnightTour(vector<vector<int>> &board, int row, int col, int step, int max_moves, int &max_steps)
 {
-    if (board_size == 0)
+    if (step == max_moves)
+    {
+        max_steps = max(step, max_steps);
         return true;
-
-    for(int k = 0; k < 8; k++)
-    {
-        int next_i = i + moves[k].first;
-        int next_j = j + moves[k].second;
-
-        if(is_valid(next_i, next_j, board, rows))
-        {
-            board[next_i][next_j] = 0;
-            if (knight_tour(board, board_size-1, rows, next_i, next_j, moves))
-                return true;
-            board[i + moves[k].first][j + moves[k].second] = -1; // backtracking
-        }
     }
-
-  return false;
-}
-
-void start_knight_tour(vector<vector<int>> &board, int rows, int board_size, int cases, int steps)
-{
-    vector<pair<int, int>> moves = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}, {2, -1}, {2, 1}};
-
-    pair<int, int> start = {-1, -1};
-    int j = 0;
-    for (int i = 0; i < 10; i++)
-    {
-        for (j = 0; j < 10; j++)
-        {
-            if (board[i][j] == -1)
-            {
-                start = {i, j};
-                break;
-            }
-        }
-        if (i != -1 && j != -1)
-            break;
-    }
-    board[start.first][start.second] = 0;
-    
-    if (!knight_tour(board, board_size, rows, start.first, start.second, moves, steps))
-        cout << "Case " << cases << ", 0 squares can not be reached.\n";
     else
     {
-        int squares = 0;
-        for (int i = 0; i < 10; i++)
-            for (int j = 0; j < 10; j++)
-                if (board[i][j] == -1)
-                    squares++;
-        
-        if (squares == 1)
-            cout << "Case " << cases << ", " << squares << " square can not be reached.\n";
-        else
-            cout << "Case " << cases << ", " << squares << " squares can not be reached.\n";
+        for (int i = 0; i < 8; i++)
+        {
+            int nextRow = row + moves_row[i];
+            int nextCol = col + moves_col[i];
+
+            if (Is_valid(board, nextRow, nextCol))
+            {
+                board[nextRow][nextCol] = Visited;
+                max_steps = max(step + 1, max_steps);
+
+                if (KnightTour(board, nextRow, nextCol, step + 1, max_moves, max_steps))
+                    return true;
+                else
+                    board[nextRow][nextCol] = 0;
+            }    
+        }
     }
+
+    return false;
 }
 
 int main()
 {
-    int rows, cases = 1, size = 100;
-
-    vector<vector<int>> board(10, vector<int>(10, -1));
-    
+    int cases = 1;   
     while (true)
     {
+        int rows, size = 0;
         cin >> rows;
         if (rows == 0)
             break;
         
+        vector<vector<int>> board(10, vector<int>(10, -1));
         for (int i = 0; i < rows; i++)
         {
             int skip, columns;
             cin >> skip >> columns;
 
-            for (int j = 0; j < skip; j++)
-            {
-                board[i][j] = -2;
-                size--;
-            }
-            for (int j = skip + columns; j < 10; j++)
-            {
-                board[i][j] = -2;
-                size--;
-            }
-        }
-        for (int i = rows; i < 10; i++)
-        {
-            for (int j = 0; j < 10; j++)
-            {
-                board[i][j] = -2;
-                size--;
-            }
+            for (int j = skip; j < skip + columns; j++)
+                board[i][j] = Unvisited;
+            
+            size += columns;
         }
 
-        for (int i = 0; i < 10; i++)
-        {
-            for (int j = 0; j < 10; j++)
-                cout << board[i][j] << " ";
-            cout << endl;
-        }
-        cout << endl; 
-        
-        start_knight_tour(board, rows, size, cases, 0);
-        for (int i = 0; i < 10; i++)
-        {
-            for (int j = 0; j < 10; j++)
-                cout << board[i][j] << " ";
-            cout << endl;
-        }
-        cout << endl;
+        board[0][0] = 1;
+        int max_steps = 0;
+
+        bool tour = KnightTour(board, 0, 0, 1, size, max_steps);
+
+        int squares = size - max_steps;
+        if (squares == 1)
+            cout << "Case " << cases << ", " << squares << " square can not be reached.\n";
+        else
+            cout << "Case " << cases << ", " << squares << " squares can not be reached.\n";
         cases++;
     }
-
+    
     return 0;
 }
