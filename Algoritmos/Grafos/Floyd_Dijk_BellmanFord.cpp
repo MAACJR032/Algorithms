@@ -329,16 +329,7 @@ class Graph
             }
         }
 };
-/*
-5 7 0
-0 1 10
-0 2 3
-0 3 20
-1 3 5 
-2 1 2
-2 4 15
-3 4 11
-*/
+
 int main()
 {
     int n, m, v;
@@ -352,7 +343,7 @@ int main()
         g.setEdge(a, b, w);
     }
     
-    // g.PrintMatrix();
+    g.PrintMatrix();
     g.Dijkstra(v);
     g.Floyd(v);
     g.BellmanFord(v);
