@@ -135,8 +135,8 @@ class Graph
         }
         void BFSTraverse(int start)
         {
-            // for (int i = 0; i < numVertices; i++)
-            //     setMark(i, UNVISITED);
+            for (int i = 0; i < numVertices; i++)
+                setMark(i, UNVISITED);
             marked.resize(numVertices, UNVISITED);
             for (int i = start; i < numVertices; i++)
                 if (getMark(i) == UNVISITED)
@@ -158,8 +158,8 @@ class Graph
         }
         void ToposortTraverse(int start, stack <int> &s)
         {
-            // for (int i = 0; i < numVertices; i++)
-            //     setMark(i, UNVISITED);
+            for (int i = 0; i < numVertices; i++)
+                setMark(i, UNVISITED);
             marked.resize(numVertices, UNVISITED);
             for (int i = start; i < numVertices; i++)
                 if (getMark(i) == UNVISITED)
