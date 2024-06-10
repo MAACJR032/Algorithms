@@ -75,7 +75,6 @@ int main()
     path[start_pos.first][start_pos.second] = Visisted;
 
     bool found = findTreasure(maze, path, start_pos.first, start_pos.second, rows, width, spikes, max_avoid);
-    
     if (found)
         cout << "SUCCESS\n";
     else
