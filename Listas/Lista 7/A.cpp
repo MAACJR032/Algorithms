@@ -76,6 +76,7 @@ int main()
             cout << "Case " << cases << ", " << squares << " square can not be reached.\n";
         else
             cout << "Case " << cases << ", " << squares << " squares can not be reached.\n";
+        
         cases++;
     }
     
