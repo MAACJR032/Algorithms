@@ -20,7 +20,7 @@ class Graph
         Graph(int n)
         {
             numVertices = n;
-            marked.resize(n);
+            marked.resize(n, 0);
             adj.resize(n);
         }
 
@@ -46,7 +46,7 @@ class Graph
         }
         bool isEdge(int i, int j)
         {
-            for (auto k : adj[i])
+            for (auto &k : adj[i])
             {   
                 if (k.first == j)
                     return true;
@@ -56,7 +56,7 @@ class Graph
 
         int weight(int src, int dest)
         {
-            for (auto edge : adj[src])
+            for (auto &edge : adj[src])
             {
                 if (edge.first == dest)
                     return edge.second; // Return the weight of the edge if it exists
@@ -78,7 +78,7 @@ class Graph
             for (int i = 0; i < numVertices; i++)
             {
                 cout << "\nVertex " << i << ":";
-                for (auto x : adj[i])
+                for (auto &x : adj[i])
                     cout << " -> " << x.first;
                 cout << endl;
             }
