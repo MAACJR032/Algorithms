@@ -1,30 +1,43 @@
 #include <iostream>
+#include <string>
 #include <memory>
 using namespace std;
 
+template <typename T>
 class Node
 {
     public:
-        int item;
-        shared_ptr<Node> next;
+        T item;
+        shared_ptr<Node<T>> next;
 
-        Node(int Item, shared_ptr<Node> Next)
+        Node(T Item, shared_ptr<Node<T>> Next)
         {
             item = Item;
             next = nullptr;
         }
+        Node(shared_ptr<Node<T>> Next)
+        {
+            next = nullptr;
+        }
 };
 
+template <typename T>
 class List
 {
     private:
         int size;
-        shared_ptr<Node> head;
-        shared_ptr<Node> tail;
-        shared_ptr<Node> cursor;
+        shared_ptr<Node<T>> head;
+        shared_ptr<Node<T>> tail;
+        shared_ptr<Node<T>> cursor;
 
     public:
-        List();
+        List()
+        {
+            size = 0;
+            head = nullptr;
+            tail = head;
+            cursor = head;
+        }
 
         // Returns
         int Size()
@@ -42,7 +55,7 @@ class List
         }
         void prev()
         {
-            shared_ptr<Node> tmp = make_shared<Node>(0, nullptr);
+            shared_ptr<Node<T>> tmp = make_shared<Node<T>>(nullptr);
             tmp = cursor;
 
             cursor = head;
@@ -69,9 +82,9 @@ class List
         }
 
         // Insert
-        void Append(int item)
+        void push_back(T item)
         {
-            shared_ptr<Node> New_Node = make_shared<Node>(item, nullptr);
+            shared_ptr<Node<T>> New_Node = make_shared<Node<T>>(item, nullptr);
             
             if (head == nullptr)
                 head = New_Node;
@@ -81,9 +94,9 @@ class List
             tail = New_Node;
             size++;
         }
-        void push_front(int item)
+        void push_front(T item)
         {
-            shared_ptr<Node> New_Node = make_shared<Node>(item, nullptr);
+            shared_ptr<Node<T>> New_Node = make_shared<Node<T>>(item, nullptr);
             
             if (head == nullptr)
             {
@@ -100,10 +113,14 @@ class List
         }
 
         // Remove
-        int pop_back()
+        T pop_back()
         {
             if (head == nullptr || tail == nullptr)
-                return -1;
+            {
+                // Creates temporary Node pointer to return an error
+                unique_ptr<Node<T>> temp = make_unique<Node<T>>(nullptr);
+                return temp->item;
+            }
 
             cursor = head;
             if (cursor->next != tail)
@@ -112,20 +129,24 @@ class List
                 prev();
             }
 
-            int r_item = cursor->item;
+            T r_item = cursor->item;
             cursor->next = nullptr;
             cursor = head;
             size--;
 
             return r_item;
         }
-        int pop_front()
+        T pop_front()
         {
             if (head == nullptr)
-                return -1;
+            {
+                // Creates temporary Node pointer to return an error
+                unique_ptr<Node<T>> temp = make_unique<Node<T>>(nullptr);
+                return temp->item;
+            }
             
             cursor = head;
-            int r_item = cursor->item;
+            T r_item = cursor->item;
 
             head = head->next;
             cursor = head;
@@ -144,21 +165,33 @@ class List
         }
 };
 
-List::List()
-{
-    size = 0;
-    head = nullptr;
-    tail = head;
-    cursor = head;
-}
-
 int main()
 {
-    List l;
-    l.Append(1);
-    l.Append(2);
-    l.Append(3);
-    l.pop_front();
-    l.print();   
+    List<int> l1;
+
+    l1.push_back(1);
+    l1.push_back(2);
+    l1.push_back(3);
+    
+    l1.pop_front();
+    l1.print();
+
+    List<string> l2;
+
+    l2.push_back("Ola");
+    l2.push_back("Tudo");
+    l2.push_back("Bem");
+    
+    l2.pop_front();
+    l2.print();
+
+    List<float> l3;
+
+    l3.pop_back();
+    l3.push_back(9.7);
+    l3.push_back(2.1);
+    
+    l3.print();
+    
     return 0;
 }
