@@ -1,1 +1,1 @@
-Algoritmos e Exercícios da dicsiplina de Algoritmos e Estrutura de Dados
+Algoritmos e Exercícios da disciplina de Algoritmos e Estrutura de Dados
