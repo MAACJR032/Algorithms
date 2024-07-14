@@ -58,7 +58,7 @@ list* create_list()
     return l;
 }
 
-bool empty(const list *l) { return l->head == l->tail; }
+bool empty(const list *l) { return l->head->next == l->tail; }
 
 void push_back(list *l, int val)
 {
