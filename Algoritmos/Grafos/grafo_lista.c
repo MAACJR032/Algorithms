@@ -1,4 +1,6 @@
 #include "../Listas/DoublyLinked.h"
+#include "../Listas/Linked_stack.h"
+#include "../Listas/LinkedQueue.h"
 
 #define visited 1
 #define unvisited 0
@@ -115,6 +117,87 @@ void print_graph(const graph *g)
             printf("%d -> ", n->val);
         printf("\n");
     }
+}
+
+void DFS(graph *g, int start_vertex)
+{
+    set_mark(g, start_vertex, visited);
+    int w = first(g, start_vertex);
+
+    while (w < g->num_vertex)
+    {
+        if (get_mark(g, w) == unvisited)
+            DFS(g, w);
+        
+        w = next(g, start_vertex, w);
+    }
+    
+}
+
+void DFS_traverse(graph *g, int start_vertex)
+{
+    init_marked(g, unvisited);
+
+    for (size_t i = start_vertex; i < g->num_vertex; i++)
+        if (get_mark(g, i) == unvisited)
+            DFS(g, i);
+}
+
+void BFS(graph *g, int start_vertex)
+{
+    Queue *q = create_queue();
+
+    enqueue(q, start_vertex);
+    set_mark(g, start_vertex, visited);
+
+    while (getSize(q) > 0)
+    {
+        int v = dequeue(q);
+        int w = first(g, v);
+
+        while (w < g->num_vertex)
+        {
+            if (get_mark(g, w) == unvisited)
+            {
+                set_mark(g, w, visited);
+                enqueue(q, w);
+            }
+
+            w = next(g, v,  w);
+        }
+    }
+}
+
+void BFS_traverse(graph *g, int start_vertex)
+{
+    init_marked(g, unvisited);
+
+    for (size_t i = start_vertex; i < g->num_vertex; i++)
+        if (get_mark(g, i) == unvisited)
+            BFS(g, i);
+}
+
+void toposort(graph *g, int v, stack *s)
+{
+    set_mark(g, v, visited);
+    int w = first(g, v);
+
+    while (w < g->num_vertex)
+    {
+        if (get_mark(g, w) == unvisited)
+            toposort(g, w, s);
+        w = next(g, v, w);        
+    }
+    push(s, v);
+}
+
+void Toposort_Traverse(graph *g, int start, stack *s)
+{
+    for (int i = 0; i < g->num_vertex; i++)
+        setMark(i, unvisited);
+    for (int i = start; i < g->num_vertex; i++)
+        if (getMark(i) == unvisited)
+            toposort(g, i, s);
 }
 
 int main()
