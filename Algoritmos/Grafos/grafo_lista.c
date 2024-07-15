@@ -1,6 +1,7 @@
 #include "../Listas/DoublyLinked.h"
 #include "../Listas/Linked_stack.h"
 #include "../Listas/LinkedQueue.h"
+#include <stdarg.h>
 
 #define visited 1
 #define unvisited 0
@@ -70,6 +71,22 @@ void set_edge(graph *g, int vertex1, int vertex2)
 {
     push_back(g->l[vertex1], vertex2);
     push_back(g->l[vertex2], vertex1);
+}
+
+void set_n_edges(graph *g, int vertex, int n, ...)
+{
+    va_list args;
+    va_start(args, n);
+
+    for (size_t i = 0; i < n; i++)
+    {
+        int v = va_arg(args, int);
+
+        push_back(g->l[vertex], v);
+        push_back(g->l[vertex], v);
+    }
+    
+    va_end(args);
 }
 
 void del_edge(graph *g, int vertex1, int vertex2)
