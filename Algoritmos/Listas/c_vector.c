@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <assert.h>
 
 struct vector
 {
@@ -10,14 +11,16 @@ struct vector
 typedef struct vector vector;
 
 // Constructors
-void vector_init(vector *v)
+vector* vector_init()
 {    
+    vector *v;
     v->max_size = 10; 
     v->size = 0;
 
     v->arr = (int *) malloc(sizeof(int) * v->max_size);
-    if (v->arr == NULL)
-        printf("Error allocating memory\n");
+    assert(v->arr != NULL);
+    
+    return v;
 }
 void vector_init_size(vector *v, int init_size)
 {    
@@ -28,8 +31,7 @@ void vector_init_size(vector *v, int init_size)
     
     v->size = 0;
     v->arr = (int *) malloc(sizeof(int) * v->max_size);
-    if (v->arr == NULL)
-        printf("Error allocating memory\n");
+    assert(v->arr != NULL);
 }
 void vector_init_elem(vector *v, int init_size, int init_elem)
 {
@@ -40,11 +42,7 @@ void vector_init_elem(vector *v, int init_size, int init_elem)
     
     v->size = v->max_size;
     v->arr = (int *) malloc(sizeof(int) * v->max_size);
-    if (v->arr == NULL)
-    {   
-        printf("Error allocating memory\n");
-        return;
-    }
+    assert(v->arr != NULL);
     
     for (size_t i = 0; i < v->max_size; i++)
         v->arr[i] = init_elem;
@@ -69,22 +67,26 @@ int capacity(const vector *v)
 {
     return v->max_size;
 }
+int at(const vector *v, int index)
+{
+    assert(index > 0 && index < v->size);
+    return v->arr[index];
+}
 
 // Inserction functions
 void push_back(vector *v, int val)
 {
     if (v->size == v->max_size)
     {
-        v->max_size *= 2;
+        v->max_size += v->max_size/2;
     
         int *temp = v->arr;
         temp = (int *) realloc(v->arr, sizeof(int) * v->max_size);
 
         if (temp == NULL)
         {
-            printf("Error Reallocating\n");
             free(v->arr);
-            return;
+            assert(temp != NULL);
         }
 
         v->arr = temp;
@@ -95,21 +97,19 @@ void push_back(vector *v, int val)
 }
 void insert(vector *v, int val, int index)
 {
-    if (index > v->max_size|| index < 0)
-        return;
+    assert(index <= v->max_size && index > 0);
 
     if (v->size == v->max_size)
     {
-        v->max_size *= 2;
+        v->max_size += v->max_size/2;
 
         int *temp = v->arr;
         temp = (int *) realloc(v->arr, sizeof(int) * v->max_size);
 
         if (temp == NULL)
         {
-            printf("Error Reallocating\n");
             free(v->arr);
-            return;
+            assert(v->arr != NULL);
         }
 
         v->arr = temp;
@@ -125,11 +125,7 @@ void insert(vector *v, int val, int index)
 // Remove functions
 int pop_back(vector *v)
 {
-    if (v->size == 0)
-    {
-        printf("Vector is already empty\n");
-        return -1;
-    }
+    assert(v->size > 0);
     
     int tmp = v->arr[v->size-1];
     v->size--;
@@ -138,11 +134,7 @@ int pop_back(vector *v)
 }
 void erase(vector *v, int start, int end)
 {
-    if (start < 0 || start > v->size || end < 0 || end > v->size || end < start)
-    {
-        printf("Out of range\n");
-        return;
-    }
+    assert(v->size > 0 && start < v->size && end > 0 && end < v->size && end >= start);
 
     if (end == start)
     {
@@ -164,11 +156,7 @@ void clear(vector *v)
     v->max_size = 10;
     
     v->arr = (int *) malloc(sizeof(int) * v->max_size);
-    if (v->arr == NULL)
-    {
-        printf("Error allocating memory\n");
-        return;
-    }
+    assert(v->arr != NULL);
 }
 void vector_print(const vector *v)
 {
@@ -178,11 +166,7 @@ void vector_print(const vector *v)
 }
 void resize(vector *v, int size)
 {
-    if (size < 0)
-    {
-        printf("Out of range\n");
-        return;
-    }
+    assert(v->size > 0);
 
     if (size <= v->size)
         v->size = size;
@@ -195,9 +179,8 @@ void resize(vector *v, int size)
 
         if (temp == NULL)
         {
-            printf("Error Reallocating\n");
             free(v->arr);
-            return;
+            assert(temp != NULL);
         }
 
         v->arr = temp;
@@ -206,11 +189,7 @@ void resize(vector *v, int size)
 }
 void resize_elem(vector *v, int size, int elem)
 {
-    if (size < 0)
-    {
-        printf("Out of range\n");
-        return;
-    }
+    assert(size > 0);
     
     free(v->arr);
     
@@ -233,9 +212,28 @@ void swap(int *param1, int *param2)
     *param1 = *param2;
     *param2 = temp;
 }
-void vetor_swap(vector *v1, vector *v2)
+void vector_swap(vector *v1, vector *v2)
 {    
     swap(&v1->size, &v2->size);
     swap(&v1->max_size, &v2->max_size);
     swap(v1->arr, v2->arr);
+}
+
+vector* vector_copy(vector *dest, const vector *src)
+{
+    free(dest->arr);
+    dest->max_size = src->max_size;
+    dest->size = src->size;
+
+    dest->arr = (int *) malloc(sizeof(int) * dest->max_size);
+    if (dest->arr == NULL)
+    {
+        printf("Error allocating memory\n");
+        return;
+    }
+    
+    for (size_t i = 0; i < dest->size; i++)
+        dest->arr[i] = src->arr[i];
+    
+    return dest;
 }
