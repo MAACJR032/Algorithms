@@ -14,7 +14,7 @@ struct graph
 };
 typedef struct graph graph;
 
-graph* create_graph(const int num_vertex)
+graph* create_graph(const size_t num_vertex)
 {
     graph *g = (graph *) malloc(sizeof(graph));
     assert(g != NULL);
@@ -32,15 +32,19 @@ graph* create_graph(const int num_vertex)
     return g;
 }
 
-int first(graph *g, int vertex)
+int first(graph *g, size_t vertex)
 {
+    assert(vertex <= g->num_vertex);
+
     if (empty(g->l[vertex]))
         return g->num_vertex;
     return front(g->l[vertex]);
 }
 
-bool is_edge(graph *g, int vertex1, int vertex2)
+bool is_edge(graph *g, size_t vertex1, size_t vertex2)
 {
+    assert(vertex1 <= g->num_vertex && vertex2 <= g->num_vertex);
+
     node *i = begin(g->l[vertex1]);
     while (i != end(g->l[vertex1]))
     {
@@ -53,8 +57,10 @@ bool is_edge(graph *g, int vertex1, int vertex2)
     return false;
 }
 
-int next(graph *g, int vertex1, int vertex2)
+int next(graph *g, size_t vertex1, size_t vertex2)
 {
+    assert(vertex1 <= g->num_vertex && vertex2 <= g->num_vertex);
+
     node *i = begin(g->l[vertex1]);
     while (i != end(g->l[vertex1]))
     {
@@ -67,14 +73,18 @@ int next(graph *g, int vertex1, int vertex2)
     return g->num_vertex;
 }
 
-void set_edge(graph *g, int vertex1, int vertex2)
+void set_edge(graph *g, size_t vertex1, size_t vertex2)
 {
+    assert(vertex1 <= g->num_vertex && vertex2 <= g->num_vertex);
+
     push_back(g->l[vertex1], vertex2);
     push_back(g->l[vertex2], vertex1);
 }
 
-void set_n_edges(graph *g, int vertex, int n, ...)
+void set_n_edges(graph *g, size_t vertex, size_t n, ...)
 {
+    assert(vertex <= g->num_vertex && n >= 0);
+    
     va_list args;
     va_start(args, n);
 
@@ -89,8 +99,10 @@ void set_n_edges(graph *g, int vertex, int n, ...)
     va_end(args);
 }
 
-void del_edge(graph *g, int vertex1, int vertex2)
+void del_edge(graph *g, size_t vertex1, size_t vertex2)
 {
+    assert(vertex1 <= g->num_vertex && vertex2 <= g->num_vertex);
+
     node *i = begin(g->l[vertex1]);
     while (i != end(g->l[vertex1]))
     {
@@ -116,8 +128,17 @@ void del_edge(graph *g, int vertex1, int vertex2)
     }
 }
 
-int get_mark(graph *g, int vertex) { return g->marked[vertex]; }
-void set_mark(graph *g, int vertex, int visit) { g->marked[vertex] = visit; }
+int get_mark(graph *g, size_t vertex)
+{
+    assert(vertex <= g->num_vertex);
+    return g->marked[vertex];
+}
+
+void set_mark(graph *g, size_t vertex, int visit)
+{
+    assert(vertex <= g->num_vertex);
+    g->marked[vertex] = visit;
+}
 
 void init_marked(graph *g, int visit)
 {
@@ -136,8 +157,10 @@ void print_graph(const graph *g)
     }
 }
 
-void DFS(graph *g, int start_vertex)
+void DFS(graph *g, size_t start_vertex)
 {
+    assert(start_vertex <= g->num_vertex);
+
     set_mark(g, start_vertex, visited);
     int w = first(g, start_vertex);
 
@@ -151,8 +174,9 @@ void DFS(graph *g, int start_vertex)
     
 }
 
-void DFS_traverse(graph *g, int start_vertex)
+void DFS_traverse(graph *g, size_t start_vertex)
 {
+    assert(start_vertex <= g->num_vertex);
     init_marked(g, unvisited);
 
     for (size_t i = start_vertex; i < g->num_vertex; i++)
@@ -160,8 +184,9 @@ void DFS_traverse(graph *g, int start_vertex)
             DFS(g, i);
 }
 
-void BFS(graph *g, int start_vertex)
+void BFS(graph *g, size_t start_vertex)
 {
+    assert(start_vertex <= g->num_vertex);
     Queue *q = create_queue();
 
     enqueue(q, start_vertex);
@@ -185,8 +210,9 @@ void BFS(graph *g, int start_vertex)
     }
 }
 
-void BFS_traverse(graph *g, int start_vertex)
+void BFS_traverse(graph *g, size_t start_vertex)
 {
+    assert(start_vertex <= g->num_vertex);
     init_marked(g, unvisited);
 
     for (size_t i = start_vertex; i < g->num_vertex; i++)
@@ -194,8 +220,9 @@ void BFS_traverse(graph *g, int start_vertex)
             BFS(g, i);
 }
 
-void toposort(graph *g, int v, stack *s)
+void toposort(graph *g, size_t v, stack *s)
 {
+    assert(v <= g->num_vertex);
     set_mark(g, v, visited);
     int w = first(g, v);
 
@@ -208,11 +235,13 @@ void toposort(graph *g, int v, stack *s)
     push(s, v);
 }
 
-void Toposort_Traverse(graph *g, int start, stack *s)
+void Toposort_Traverse(graph *g, size_t start_vertex, stack *s)
 {
+    assert(start_vertex <= g->num_vertex);
+    
     for (int i = 0; i < g->num_vertex; i++)
         setMark(i, unvisited);
-    for (int i = start; i < g->num_vertex; i++)
+    for (int i = start_vertex; i < g->num_vertex; i++)
         if (getMark(i) == unvisited)
             toposort(g, i, s);
 }
