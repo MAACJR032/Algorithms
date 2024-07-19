@@ -50,7 +50,7 @@ node* new_node(int val, node *left, node *right)
     n->val = val;
     n->left = left;
     n->right = right;
-    n->height = -1;
+    n->height = 0;
 
     return n;
 }
@@ -66,19 +66,6 @@ avl* create_tree()
     return t;
 }
 
-// Rotations
-void update_height(node *rt)
-{
-    if (rt)
-    {
-        rt->height = 1;
-        if (rt->left)
-            rt->height += rt->left->height;
-        if (rt->right)
-            rt->height += rt->right->height;
-    }
-}
-
 node *rightRotate(node *rt)
 {
     node *l = rt->left;
@@ -90,9 +77,6 @@ node *rightRotate(node *rt)
     rt->height = 1 + max(rt->left ? rt->left->height : -1, rt->right ? rt->right->height : -1);
 
     l->height = 1 + max(l->left ? l->left->height : -1, l->right ? l->right->height : -1);
-    
-    update_height(rt);
-    update_height(l);
 
     return l;
 }
@@ -109,9 +93,6 @@ node *leftRotate(node *rt)
 
     r->height = 1 + max(r->left ? r->left->height : -1, r->right ? r->right->height : -1);
 
-    update_height(rt);
-    update_height(r);
-
     return r;
 }
 
@@ -120,15 +101,12 @@ node* insert_help(node *rt, int val)
 {
     if (rt == NULL)
         return new_node(val, NULL, NULL);
-    
     if (rt->val > val)
         rt->left = insert_help(rt->left, val);
     else
         rt->right = insert_help(rt->right, val);
     
     rt->height = 1 + max(rt->left ? rt->left->height : -1, rt->right ? rt->right->height : -1);
-
-    update_height(rt);
 
     int balance = (rt->left ? rt->left->height : -1) - (rt->right ? rt->right->height : -1);
 
@@ -225,7 +203,7 @@ void inorder(const node *rt)
     if (rt != NULL)
     {
         inorder(rt->left);
-        printf("%d ", rt->val);
+        printf("%d ", rt->height);
         inorder(rt->right);
     }
 }
