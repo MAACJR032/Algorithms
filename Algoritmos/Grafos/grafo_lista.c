@@ -240,9 +240,9 @@ void Toposort_Traverse(graph *g, size_t start_vertex, stack *s)
     assert(start_vertex <= g->num_vertex);
     
     for (int i = 0; i < g->num_vertex; i++)
-        setMark(i, unvisited);
+        set_mark(g, i, unvisited);
     for (int i = start_vertex; i < g->num_vertex; i++)
-        if (getMark(i) == unvisited)
+        if (get_mark(g, i) == unvisited)
             toposort(g, i, s);
 }
 
