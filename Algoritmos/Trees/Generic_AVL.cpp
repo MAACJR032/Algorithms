@@ -22,6 +22,9 @@ template <typename T>
 class BST
 {
     private:
+        Node<T> *root;
+        int count;
+
         bool findhelp(const Node<T> *rt, T element) const
         {
             if (rt == nullptr)
@@ -145,14 +148,14 @@ class BST
         }
 
     public:
-        Node<T> *root;
-        int count;
-
         BST()
         {
             root = nullptr;
             count = 0;
         }
+
+        Node<T> get_root() const { return root; }
+        int get_size() const { return count; }
 
         bool find(T element) const
         {
