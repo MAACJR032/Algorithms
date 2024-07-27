@@ -14,15 +14,15 @@ type list struct {
 	tail *node
 }
 
-func new_node(elem int, next *node, prev *node) *node {
+func New_node(elem int, next *node, prev *node) *node {
 	return &node {elem, next, prev}
 }
 
-func create_list() *list {
+func Create_list() *list {
 	l := list {
 		size: 0,
-		head: new_node(0, nil, nil),
-		tail: new_node(0, nil, nil),
+		head: New_node(0, nil, nil),
+		tail: New_node(0, nil, nil),
 	}
 
 	l.head.next = l.tail
@@ -31,24 +31,24 @@ func create_list() *list {
 	return &l
 }
 
-func (l *list) begin() *node {
+func (l *list) Begin() *node {
 	return l.head.next
 }
 
-func (l *list) end() *node {
+func (l *list) End() *node {
 	return l.tail
 }
 
-func (l *list) r_begin() *node {
+func (l *list) R_begin() *node {
 	return l.tail.prev
 }
 
-func (l *list) r_end() *node {
+func (l *list) R_end() *node {
 	return l.head
 }
 
-func (l *list) push_back(elem int) {
-	n := new_node(elem, l.tail, l.tail.prev)
+func (l *list) Push_back(elem int) {
+	n := New_node(elem, l.tail, l.tail.prev)
 
 	n.prev.next = n
 	l.tail.prev = n
@@ -56,8 +56,8 @@ func (l *list) push_back(elem int) {
 	l.size++
 }
 
-func (l *list) push_front(elem int) {
-	n := new_node(elem, l.head.next, l.head)
+func (l *list) Push_front(elem int) {
+	n := New_node(elem, l.head.next, l.head)
 
 	n.next.prev = n
 	l.head.next = n
@@ -65,7 +65,7 @@ func (l *list) push_front(elem int) {
 	l.size++
 }
 
-func (l *list) pop_back(error) int {
+func (l *list) Pop_back(error) int {
 	elem := l.tail.prev.elem
 
 	l.tail.prev = l.tail.prev.prev
@@ -75,7 +75,7 @@ func (l *list) pop_back(error) int {
 	return elem
 }
 
-func (l *list) pop_front() int {
+func (l *list) Pop_front() int {
 	elem := l.head.next.elem
 
 	l.head.next = l.head.next.next
@@ -85,56 +85,56 @@ func (l *list) pop_front() int {
 	return elem
 }
 
-func (l *list) pop_node(n *node) {
+func (l *list) Pop_node(n *node) {
 	n.prev.next = n.next
 	n.next.prev = n.prev
 	l.size--
 }
 
-func (l *list) empty() bool {
+func (l *list) Empty() bool {
 	return l.head.next == l.tail 
 }
 
-func (l *list) remove(elem int) {
+func (l *list) Remove(elem int) {
 
-	for n := l.begin(); n != l.end(); {
+	for n := l.Begin(); n != l.End(); {
 
 		if n.elem == elem {
 			n = n.next
-			l.pop_node(n.prev)
+			l.Pop_node(n.prev)
 		} else {
 			n = n.next
 		}
 	}
 }
 
-func (l *list) clear() {
+func (l *list) Clear() {
 	for l.size > 0 {
-		l.pop_front()
+		l.Pop_front()
 	}
 }
 
-func (l *list) print_list() {
+func (l *list) Print_list() {
 
-	for n := l.begin(); n != l.end(); n = n.next {
+	for n := l.Begin(); n != l.End(); n = n.next {
 		fmt.Printf("%v ", n.elem)
 	}
 	fmt.Println()
 }
 
 func main() {
-	var l list = *create_list()
+	var l list = *Create_list()
 
-	l.push_back(10)
-	l.push_back(11)
-	l.push_back(12)
-	l.push_front(9)
-	l.push_back(10)
-	l.push_back(21)
+	l.Push_back(10)
+	l.Push_back(11)
+	l.Push_back(12)
+	l.Push_front(9)
+	l.Push_back(10)
+	l.Push_back(21)
 
-	l.remove(10)
-	l.print_list()
+	l.Remove(10)
+	l.Print_list()
 
-	l.clear()
-	l.print_list()
+	l.Clear()
+	l.Print_list()
 }
