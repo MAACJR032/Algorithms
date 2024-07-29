@@ -1,239 +1,161 @@
-#include <iostream>
-using namespace std;
+package main
 
-template <typename T>
-class Node
-{
-    public:
-        T element;
-        int height;
-        Node<T> *left;
-        Node<T> *right;
+import ("fmt")
 
-        Node(T elem)
-        {
-            element = elem;
-            height = 0;
-            left = right = nullptr;
-        }
-};
+func max(num1 int, num2 int) int {
+	if num1 > num2 {
+		return num1
+	}
 
-template <typename T>
-class BST
-{
-    private:
-        Node<T> *root;
-        int count;
+	return num2
+}
 
-        bool findhelp(const Node<T> *rt, T element) const
-        {
-            if (rt == nullptr)
-                return false;
-            if (rt->element > element)
-                return findhelp(rt->left, element);
-            else if (rt->element == element)
-                return true;
-            else
-                return findhelp(rt->right, element);
-        }
+// Node structure
+type node struct {
+	elem int
+	height int
+	left *node
+	right *node
+}
 
-        Node<T> *rightRotate(Node<T> *rt)
-        {
-            Node<T> *l = rt->left;
-            Node<T> *lr = l->right;
+func New_node(elem int, left *node, right *node) *node {
+	return &node {elem, 0, left, right}
+}
 
-            l->right = rt;
-            rt->left = lr;
+// AVL structure
+type AVL struct {
+	root *node
+	size uint
+}
 
-            rt->height = 1 + max(h(rt->left), h(rt->right));
-            l->height = 1 + max(h(l->left), h(l->right));
+func Create_AVL_tree() *AVL {
+	return &AVL {nil, 0}
+}
 
-            return l;
-        }
-        Node<T> *leftRotate(Node<T> *rt)
-        {
-            Node<T> *r = rt->right;
-            Node<T> *rl = r->left;
+// Getters
+func (tree *AVL) Root() *node {
+	return tree.root
+}
 
-            r->left = rt;
-            rt->right = rl;
-            rt->height = 1 + max(h(rt->left), h(rt->right));
-            r->height = 1 + max(h(r->left), h(r->right));
+func (tree *AVL) Size() uint {
+	return tree.size
+}
 
-            return r;
-        }
+func height(rt *node) int {
+	if rt == nil {
+		return -1
+	}
+	
+	return 1 + max(height(rt.left), height(rt.right))
+}
 
-        Node<T> *inserthelp(Node<T> *rt, T element)
-        {
-            if (rt == nullptr)
-                return new Node<T>(element);
-            
-            if (rt->element > element)
-                rt->left = inserthelp(rt->left, element);
-            else
-                rt->right = inserthelp(rt->right, element);
-            
-            rt->height = 1 + max(h(rt->left), h(rt->right));
-            int balance = getBalance(rt);
+func get_balance(root *node) int {
+	if root == nil {
+		return 0
+	}
 
-            if ((balance < -1) && (element >= rt->right->element))
-                return leftRotate(rt);
-            if ((balance > 1) && (element < rt->left->element))
-                return rightRotate(rt);
-            if ((balance > 1) && (element >= rt->left->element))
-            {
-                rt->left = leftRotate(rt->left);
-                return rightRotate(rt);
-            }
-            if ((balance < -1) && (element < rt->right->element))
-            {
-                rt->right = leftRotate(rt->right);
-                return leftRotate(rt);
-            }
+	return (height(root.left) - height(root.right))
+}
 
-            return rt;
-        }
+// Rotations
+func right_rotate(rt *node) *node {
+	l := rt.left
+	lr := l.right
 
-        int h(const Node<T> *rt) const
-        {
-            if (rt == nullptr)
-                return -1;
-                
-            return 1 + max(h(rt->left), h(rt->right));
-        }
-        int getBalance(const Node<T> *rt) const
-        {
-            if (rt == nullptr)
-                return 0;
-            return (h(rt->left) - h(rt->right));
-        }
-        Node<T> *getmin(Node<T> *rt)
-        {
-            if (rt->left == nullptr)
-                return rt;
-            return getmin(rt->left);
-        }
-        Node<T> *deletemin(Node<T> *rt)
-        {
-            if (rt->left == nullptr)
-                return rt->right;
+	l.right = rt
+	rt.left = lr
 
-            rt->left = deletemin(rt->left);
-            return rt;
-        }
+	rt.height = 1 + max(height(rt.left), height(rt.right))
+	l.height = 1 + max(height(l.left), height(l.right))
 
-        Node<T> *removehelp(Node<T> *rt, int element)
-        {
-            if (rt == nullptr)
-                return nullptr;
+	return l
+}
 
-            if (rt->element > element)
-                rt->left = removehelp(rt->left, element);
-            else if (rt->element < element)
-                rt->right = removehelp(rt->right, element);
-            else
-            {
-                if (rt->left == nullptr)
-                    return rt->right;
-                else if (rt->right == nullptr)
-                    return rt->left;
-                else
-                {
-                    Node<T> *temp = getmin(rt->right);
-                    rt->element = temp->element;
-                    rt->right = deletemin(rt->right);
-                }
-            }
-            return rt;
-        }
+func left_rotate(rt *node) *node {
+	r := rt.right
+	rl := r.left
 
-    public:
-        BST()
-        {
-            root = nullptr;
-            count = 0;
-        }
+	r.left = rt
+	rt.right = rl
 
-        Node<T> get_root() const { return root; }
-        int get_size() const { return count; }
+	rt.height = 1 + max(height(rt.left), height(rt.right))
+	r.height = 1 + max(height(r.left), height(r.right))
 
-        bool find(T element) const
-        {
-            return findhelp(root, element);
-        }
+	return r
+}
 
-        void insert(T element)
-        {
-            root = inserthelp(root, element);
-            count++;
-        }
+// Insertion
+func insert_help(root *node, elem int) *node {
+	if root == nil {
+		return New_node(elem, nil, nil)
+	}
 
-        T Remove(T element)
-        {
-            if (findhelp(root, element))
-            {
-                root = removehelp(root, element);
-                count--;
-            }
-            
-            return temp;
-        }
+	if (root.elem > elem) {
+		root.left = insert_help(root.left, elem);
+	} else {
+		root.right = insert_help(root.right, elem);
+	}	
+	
+	root.height = 1 + max(height(root.left), height(root.right))
+	balance := get_balance(root);
 
-        void preorder(const Node<T> *rt) const
-        {
-            if (rt != nullptr)
-            {
-                cout << ' ' << rt->element;
-                preorder(rt->left);
-                preorder(rt->right);
-            }
-        }
-        void inorder(const Node<T> *rt) const
-        {
-            if (rt != nullptr)
-            {
-                inorder(rt->left);
-                cout << ' ' << rt->element;
-                inorder(rt->right);
-            }
-        }
-        void posorder(const Node<T> *rt) const
-        {
-            if (rt != nullptr)
-            {
-                posorder(rt->left);
-                posorder(rt->right);
-                cout << ' ' << rt->element;
-            }
-        }
-};
+	if (balance < -1) && (elem >= root.right.elem) {
+		return left_rotate(root);
+	}
+	if (balance > 1) && (elem < root.left.elem) {
+		return right_rotate(root);
+	}
+	if (balance > 1) && (elem >= root.left.elem) {
+		root.left = left_rotate(root.left);
+		return right_rotate(root);
+	}
+	if (balance < -1) && (elem < root.right.elem) {
+		root.right = left_rotate(root.right);
+		return left_rotate(root);
+	}
 
+	return root;
+}
 
-int main()
-{
-    BST<int> bst;
-    int n;
-    cin >> n;
+func (t *AVL) Insert(elem int) {
+	t.root = insert_help(t.root, elem)
+	t.size++
+}
 
-    for (int i = 0; i < n; i++)
-    {
-        int num;
-        cin >> num;
+// Removing
+// func (t *AVL) Remove(elem int) int {
+// 	if find_help(t.root, elem) {
+// 		t.root = remove_help(t.root, elem)	
+// 	}
+// }
 
-        bst.insert(num);
-    }
+// Traverses
+func (t *AVL) Preorder(root *node) {
+	if root == nil {
+		return
+	}
 
-    cout << "Pre order : ";
-    bst.preorder(bst.root);
-    cout << '\n';
+	fmt.Printf("%v ", root.elem)
+	t.Preorder(root.left)
+	t.Preorder(root.right)
+}
 
-    cout << "In order  : ";
-    bst.inorder(bst.root);
-    cout << '\n';
-    
-    cout << "Post order: ";
-    bst.posorder(bst.root);
-    cout << '\n';
+func (t *AVL) Inorder(root *node) {
+	if root == nil {
+		return
+	}
 
-    return 0;
+	t.Inorder(root.left)
+	fmt.Printf("%v ", root.elem)
+	t.Inorder(root.right)
+}
+
+func (t *AVL) Posorder(root *node) {
+	if root == nil {
+		return
+	}
+
+	t.Posorder(root.left)
+	t.Posorder(root.right)
+	fmt.Printf("%v ", root.elem)
 }
