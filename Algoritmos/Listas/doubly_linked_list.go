@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type node struct {
 	elem int
@@ -73,11 +76,10 @@ func (l *list) Push_front(elem int) {
 }
 
 // Remove
-func (l *list) Pop_back() int {
+func (l *list) Pop_back() (int, error) {
 
 	if l.Empty() {
-		fmt.Println("list is empty")
-		return -1
+		return 0, errors.New("list is empty")
 	}
 	
 	elem := l.tail.prev.elem
@@ -86,35 +88,35 @@ func (l *list) Pop_back() int {
 	l.tail.prev.next = l.tail
 
 	l.size--
-	return elem
+	return elem, nil
 }
 
-func (l *list) Pop_front() int {
+func (l *list) Pop_front() (int, error) {
 
-	if l.Empty() {
-		fmt.Println("list is empty")
-		return -1
-	}
+    if l.Empty() {
+        return 0, errors.New("list is empty")
+    }
 
-	elem := l.head.next.elem
+    val := l.head.next.elem
 
-	l.head.next = l.head.next.next
-	l.head.next.prev = l.head
-
+    l.head.next = l.head.next.next
+    l.head.next.prev = l.head
+    
 	l.size--
-	return elem
+    return val, nil
 }
 
-func (l *list) Pop_node(n *node) {
+func (l *list) Pop_node(n *node) error {
 
 	if n == l.head || n == l.tail {
-		fmt.Println("node especified is out of range")
-		return
+		return errors.New("especified node is out of range")
 	}
 
 	n.prev.next = n.next
 	n.next.prev = n.prev
 	l.size--
+
+	return nil
 }
 
 func (l *list) Remove(elem int) {
