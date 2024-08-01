@@ -4,79 +4,73 @@ template <typename type>
 class vector
 {
     private:
-        type *arr;
-        size_t size_, max_size;
+        type *m_arr;
+        size_t m_size, m_max_size;
 
         void reallocate()
         {
-            type *new_arr = new type[max_size];
+            type *new_arr = new type[m_max_size];
                 
-            for (size_t i = 0; i < size_; i++)
-                new_arr[i] = arr[i];
+            for (size_t i = 0; i < m_size; i++)
+                new_arr[i] = m_arr[i];
             
-            type *tmp = arr;
-            arr = new_arr;
+            type *tmp = m_arr;
+            m_arr = new_arr;
             delete[] tmp;
         }
 
     public:
         vector()
         {
-            size_ = 0;
-            max_size = 10;
-            arr = new type[max_size];
+            m_size = 0;
+            m_max_size = 10;
+            m_arr = new type[m_max_size];
         }
-        vector(int size)
+        vector(size_t size)
         {
-            if (size < 0)
-                throw std::bad_alloc();
-            
-            size_ = 0;
-            max_size = size;
-            arr = new type[max_size];
+            m_size = 0;
+            m_max_size = size;
+            m_arr = new type[m_max_size];
         }
-        vector(int size, type elem)
+        vector(size_t size, type elem)
         {
-            if (size < 0)
-                throw std::bad_alloc();
-            
-            size_ = 0;
-            max_size = size;
-            arr = new type[max_size];
+            m_size = 0;
+            m_max_size = size;
+            m_arr = new type[m_max_size];
 
-            for (size_t i = 0; i < max_size; i++)
-                arr[i] = elem;
+            for (size_t i = 0; i < m_max_size; i++)
+                m_arr[i] = elem;
         }
         vector(vector &v)
         {
-            size_ = v.size_;
-            max_size = v.max_size;
-            arr = new type[max_size];
+            m_size = v.m_size;
+            m_max_size = v.m_max_size;
+            m_arr = new type[m_max_size];
 
-            for (size_t i = 0; i < size_; i++)
-                arr[i] = v.arr[i];
+            for (size_t i = 0; i < m_size; i++)
+                m_arr[i] = v.m_arr[i];
         }
         ~vector()
         {
-            delete[] arr;
+            delete[] m_arr;
         }
 
 
         // Operators:
         /* access to the data contained in the vector and allows modification */
-        type& operator[] (const int index)
+        type& operator[] (const size_t index)
         {
-            if (index < 0 || index >= size_)
+            if (index >= m_size)
                 throw std::out_of_range("Index out of range");
-            return arr[index];
+            return m_arr[index];
         }
         
         /* Access the data contained in the vector but is read only */
-        const type& operator[] (const int index) const
+        const type& operator[] (const size_t index) const
         {
-            if (index < 0 || index >= size_)
+            if (index >= m_size)
                 throw std::out_of_range("Index out of range");
-            return arr[index];
+            return m_arr[index];
         }
 
         /* Copies the other to this vector */
@@ -85,14 +79,14 @@ class vector
             if (this == &other)
                 return *this;
             
-            delete[] arr;
+            delete[] m_arr;
 
-            size_ = other.size_;
-            max_size = other.max_size;
+            m_size = other.m_size;
+            m_max_size = other.m_max_size;
             
-            arr = new type[max_size];
-            for (size_t i = 0; i < size_; i++)
-                arr[i] = other.arr[i];
+            m_arr = new type[m_max_size];
+            for (size_t i = 0; i < m_size; i++)
+                m_arr[i] = other.m_arr[i];
             
             return *this;
         }
@@ -102,52 +96,87 @@ class vector
         /* Creates an element at the end of the vector and assigns the given data to it. This operation can be done in constant time if the vector has preallocated space available. */
         void push_back(type elem)
         {
-            if (size_ == max_size)
+            if (m_size == m_max_size)
             {
-                max_size *= 2;
+                m_max_size *= 2;
                 reallocate();
             }
 
-            arr[size_] = elem;
-            size_++;
+            m_arr[m_size] = elem;
+            m_size++;
+        }
+
+        /* inserts all the elements of the parameter vector to the end of this vector */
+        void push_back(const vector<type> &v)
+        {
+            size_t dif = m_size + v.size();
+            if (dif > m_max_size)
+            {
+                m_max_size = dif * 1.5;
+                reallocate(); 
+            }
+            
+            for (size_t i = m_size, j = 0; i < dif; i++, j++)
+                m_arr[i] = v.m_arr[j];
+
+            m_size += v.m_size;
         }
 
         /* Creates an element at the begining of the vector and assigns the given data to it. This operation is done in linear time, according to the vector's size */
         void push_front(type elem)
         {
-            if (size_ == max_size)
+            if (m_size == m_max_size)
             {
-                max_size *= 2;
+                m_max_size *= 2;
                 reallocate();
             }
 
-            if (size_ > 0)
+            if (m_size > 0)
             {
-                for (size_t i = size_; i > 0; i--)
-                    arr[i] = arr[i-1];
+                for (size_t i = m_size; i > 0; i--)
+                    m_arr[i] = m_arr[i-1];
             }
             
-            arr[0] = elem;
-            size_++;
+            m_arr[0] = elem;
+            m_size++;
+        }
+
+        /* inserts all the elements of the parameter vector in order in the begining of this vector */
+        void push_front(const vector<type> &v)
+        {
+            int dif = m_size + v.m_size;
+
+            vector<type> temp = *this;
+            
+            delete[] m_arr;
+            m_arr = new int[dif];
+            
+            for (size_t i = 0; i < v.m_size; i++)
+                m_arr[i] = v.m_arr[i];
+            
+            for (size_t i = v.m_size, j = 0; i < dif; i++, j++)
+                m_arr[i] = temp.m_arr[j];
+            
+            m_size += v.m_size;
         }
 
         /* Inserts element before specified index */
         void insert(type elem, int index)
         {
-            if (index > size_ || index < 0)
+            if (index > m_size || index < 0)
                 throw std::out_of_range("index out of range");
             
-            if (size_ == max_size)
+            if (m_size == m_max_size)
             {
-                max_size *= 2;
+                m_max_size *= 2;
                 reallocate();
             }
 
-            for (int i = size_; i > index; i--)
-                arr[i] = arr[i-1];
+            for (int i = m_size; i > index; i--)
+                m_arr[i] = m_arr[i-1];
 
-            arr[index] = elem;
-            size_++;
+            m_arr[index] = elem;
+            m_size++;
         }
 
 
@@ -155,11 +184,11 @@ class vector
         /* Removes the last element */
         type pop_back()
         {
-            if (size_ == 0)
+            if (m_size == 0)
                 throw std::out_of_range("Vector is empty");
 
-            type tmp = arr[size_-1];
-            size_--;
+            type tmp = m_arr[m_size-1];
+            m_size--;
             
             return tmp;
         }
@@ -167,33 +196,33 @@ class vector
         /* Removes the first element */
         type pop_front()
         {
-            if (size_ == 0)
+            if (m_size == 0)
                 throw std::out_of_range("Vector is empty");
             
-            type tmp = arr[0];
-            for (size_t i = 0; i < size_ - 1; i++)
-                arr[i] = arr[i+1];
+            type tmp = m_arr[0];
+            for (size_t i = 0; i < m_size - 1; i++)
+                m_arr[i] = m_arr[i+1];
 
-            size_--;
+            m_size--;
             return tmp;
         }
 
         /* Erases all elements from start (inclusive) until end (exclusive) */
-        void erase(int start, int end)
+        void erase(size_t start, size_t end)
         {
-            if (start < 0 || start > size_ || end < 0 || end > size_ || start > end)
+            if (start > m_size || end > m_size || start > end)
                 throw std::out_of_range("index out of range");
             
-            if (end == size_)
+            if (end == m_size)
             {
-                size_ = start;
+                m_size = start;
                 return;
             }
             
-            for (size_t i = start, j = end; i < size_; i++, j++)
-                arr[i] = arr[j];
+            for (size_t i = start, j = end; i < m_size; i++, j++)
+                m_arr[i] = m_arr[j];
 
-            size_ -= end - start;
+            m_size -= end - start;
         }
 
 
@@ -201,8 +230,8 @@ class vector
         /* Prints all the vector elements */
         void print_vector() const
         {
-            for (size_t i = 0; i < size_; i++)
-                std::cout << arr[i] << ' ';
+            for (size_t i = 0; i < m_size; i++)
+                std::cout << m_arr[i] << ' ';
             std::cout << '\n';
         }
 
@@ -211,119 +240,70 @@ class vector
            the user's responsibility */
         void clear()
         {
-            delete[] arr;
-            size_ = 0;
-            max_size = 10;
-            arr = new type[max_size];
+            delete[] m_arr;
+            m_size = 0;
+            m_max_size = 10;
+            m_arr = new type[m_max_size];
         }
 
         /* Resizes the vector to the specified number of elements. If the number is smaller than the vector's current size the vector is truncated, otherwise default constructed elements are appended. */
-        void resize(int size)
+        void resize(size_t size)
         {
-            if (size < 0)
-                throw std::bad_alloc();
-                     
-            if (size <= size_)
-                size_ = size;
+            if (size <= m_size)
+                m_size = size;
             else
             {
-                max_size = size;
+                m_max_size = size;
                 reallocate();
-                size_ = max_size;
+                m_size = m_max_size;
             }
         }
 
         /* Resizes the vector to the size specified and assigns every index to the element specified */
-        void resize(int size, type elem)
+        void resize(size_t size, type elem)
         {
-            if (size < 0)
-                throw std::bad_alloc();
+            delete[] m_arr;
             
-            delete[] arr;
-            
-            size_ = size;
-            max_size = size;
-            arr = new type[max_size];
+            m_size = size;
+            m_max_size = size;
+            m_arr = new type[m_max_size];
 
-            for (size_t i = 0; i < max_size; i++)
-                arr[i] = elem;
+            for (size_t i = 0; i < m_max_size; i++)
+                m_arr[i] = elem;
         }
 
         /* Swap the vectors */
         void swap(vector<type> &v)
         {
-            size_t tmp2 = size_;
-            size_ = v.size_;
-            v.size_ = tmp2;
+            size_t tmp2 = m_size;
+            m_size = v.m_size;
+            v.m_size = tmp2;
 
-            tmp2 = max_size;
-            max_size = v.max_size;
-            v.max_size = tmp2;
+            tmp2 = m_max_size;
+            m_max_size = v.m_max_size;
+            v.m_max_size = tmp2;
 
-            type *tmp1 = arr;
-            arr = v.arr;
-            v.arr = tmp1;
+            type *tmp1 = m_arr;
+            m_arr = v.m_arr;
+            v.m_arr = tmp1;
         }
-
 
         // Returns funtions:
         /* Returns the maximum capacity the vector can have before allocating more */
         int capacity() const
         {
-            return max_size;
+            return m_max_size;
         }
 
         /* Returns how many elements the vector has */
         int size() const
         {
-            return size_;
+            return m_size;
         }
 
         /* Returns true if the vector is empty */
         bool empty() const
         {
-            return (size_ == 0);
+            return (m_size == 0);
         }
 };
-
-int main()
-{
-    vector<int> v1;
-
-    for (size_t i = 0; i < 5; i++)
-        v1.push_back(i);
-    v1.print_vector();
-
-    v1.erase(0, 2);
-    v1.print_vector();
-    
-    v1[0] = 0;
-    v1.insert(5, 2);
-    v1.print_vector();
-
-    v1.resize(10, 0);
-    v1.print_vector();
-
-    vector<int> v2;
-    for (size_t i = 0; i < 5; i++)
-        v2.push_back(i);
-
-    v1 = v2;
-    v1.print_vector();
-    v2.print_vector();
-
-    v1.clear();
-    v1.push_front(15);
-    v1.push_front(16);
-    v1.print_vector();
-
-    v1.swap(v2);
-    v1.print_vector();
-    v2.print_vector();
-
-    v1.pop_back();
-    v1.pop_front();
-    v1.print_vector();
-
-    return 0;
-}
