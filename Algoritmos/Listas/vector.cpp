@@ -161,9 +161,9 @@ class vector
         }
 
         /* Inserts element before specified index */
-        void insert(type elem, int index)
+        void insert(type elem, size_t index)
         {
-            if (index > m_size || index < 0)
+            if (index > m_size)
                 throw std::out_of_range("index out of range");
             
             if (m_size == m_max_size)
