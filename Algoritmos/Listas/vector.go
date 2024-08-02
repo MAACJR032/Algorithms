@@ -80,12 +80,10 @@ func (v *vector) Push_back(elem int) {
 /* Insets an element to the begining of the vector */
 func (v *vector) Push_front(elem int) {
 	check_realloc(v)
-	temp := make([]int, v.size + 1, v.max_size)
+	// temp := make([]int, v.size + 1, v.max_size)
 	
-	copy(temp[1:], v.arr)
-	temp[0] = elem
-
-	v.arr = temp
+	copy(v.arr[1:], v.arr[:v.size])
+	v.arr[0] = elem
 	v.size++
 }
 
