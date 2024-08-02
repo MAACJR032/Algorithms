@@ -48,6 +48,7 @@ func Create_vector_copy(v *vector) *vector {
 	return vect
 }
 
+
 /* Copies another vector's contents into this one */
 func (v *vector) Copy_vector(other *vector) {
 	v.arr = make([]int, other.size, other.max_size)
@@ -56,6 +57,7 @@ func (v *vector) Copy_vector(other *vector) {
 	v.size = other.size
 	v.max_size = other.max_size
 }
+
 
 /* Private function to double the vector size if it is full */
 func check_realloc(v *vector) {
@@ -66,6 +68,7 @@ func check_realloc(v *vector) {
 		v.arr = new_arr
 	}
 }
+
 
 /* Insets an element to the end of the vector */
 func (v *vector) Push_back(elem int) {
@@ -109,6 +112,17 @@ func (v *vector) Pop_front() (int, error) {
 	return elem, nil
 }
 
+func (v *vector) Erase(start uint, end uint) error {
+	if start >= v.size || end > v.size || end < start {
+		return errors.New("indexes out of range")
+	}
+
+	v.arr = append(v.arr[:start], v.arr[end:]...)
+	v.size -= end - start
+	return nil
+}
+
+
 /* Assigns elem to the vector at the given index */
 func (v *vector) Assign_at(elem int, index uint) (error) {
 	if index >= v.size {
@@ -139,6 +153,7 @@ func (v *vector) At(index uint) (int, error) {
 
 	return v.arr[index], nil
 }
+
 
 /* Non-return functions */
 func (v *vector) Clear() {
