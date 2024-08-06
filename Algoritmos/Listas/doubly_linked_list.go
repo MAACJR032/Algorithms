@@ -1,32 +1,38 @@
-package main
+package list
 
 import (
 	"errors"
 	"fmt"
 )
 
-type node struct {
-	elem int
-	next *node
-	prev *node
+type element interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 | 
+	~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 |
+	~float32 | ~float64 | ~string
 }
 
-type list struct {
+type node[T element] struct  {
+	elem T
+	next *node[T]
+	prev *node[T]
+}
+
+type list[T element] struct {
 	size uint
-	head *node
-	tail *node
+	head *node[T]
+	tail *node[T]
 }
 
 // Constructors
-func New_node(elem int, next *node, prev *node) *node {
-	return &node {elem, next, prev}
+func New_node[T element] (elem T, next *node[T], prev *node[T]) *node[T] {
+	return &node[T] {elem, next, prev}
 }
 
-func Create_list() *list {
-	l := list {
+func Create_list[T element]() *list[T] {
+	l := list[T] {
 		size: 0,
-		head: New_node(0, nil, nil),
-		tail: New_node(0, nil, nil),
+		head: New_node(*new(T), nil, nil),
+		tail: New_node(*new(T), nil, nil),
 	}
 
 	l.head.next = l.tail
@@ -36,28 +42,28 @@ func Create_list() *list {
 }
 
 // Getters
-func (l *list) Begin() *node {
+func (l *list[T]) Begin() *node[T] {
 	return l.head.next
 }
 
-func (l *list) End() *node {
+func (l *list[T]) End() *node[T] {
 	return l.tail
 }
 
-func (l *list) R_begin() *node {
+func (l *list[T]) R_begin() *node[T] {
 	return l.tail.prev
 }
 
-func (l *list) R_end() *node {
+func (l *list[T]) R_end() *node[T] {
 	return l.head
 }
 
-func (l *list) Empty() bool {
+func (l *list[T]) Empty() bool {
 	return l.head.next == l.tail 
 }
 
 // Insert
-func (l *list) Push_back(elem int) {
+func (l *list[T]) Push_back(elem T) {
 	n := New_node(elem, l.tail, l.tail.prev)
 
 	n.prev.next = n
@@ -66,7 +72,7 @@ func (l *list) Push_back(elem int) {
 	l.size++
 }
 
-func (l *list) Push_front(elem int) {
+func (l *list[T]) Push_front(elem T) {
 	n := New_node(elem, l.head.next, l.head)
 
 	n.next.prev = n
@@ -76,10 +82,10 @@ func (l *list) Push_front(elem int) {
 }
 
 // Remove
-func (l *list) Pop_back() (int, error) {
+func (l *list[T]) Pop_back() (T, error) {
 
 	if l.Empty() {
-		return 0, errors.New("list is empty")
+		return *new(T), errors.New("list is empty")
 	}
 	
 	elem := l.tail.prev.elem
@@ -91,10 +97,10 @@ func (l *list) Pop_back() (int, error) {
 	return elem, nil
 }
 
-func (l *list) Pop_front() (int, error) {
+func (l *list[T]) Pop_front() (T, error) {
 
     if l.Empty() {
-        return 0, errors.New("list is empty")
+        return *new(T), errors.New("list is empty")
     }
 
     val := l.head.next.elem
@@ -106,10 +112,12 @@ func (l *list) Pop_front() (int, error) {
     return val, nil
 }
 
-func (l *list) Pop_node(n *node) error {
+func (l *list[T]) Pop_node(n *node[T]) error {
 
 	if n == l.head || n == l.tail {
 		return errors.New("especified node is out of range")
+	} else if n == nil {
+		return errors.New("especified node is nil")
 	}
 
 	n.prev.next = n.next
@@ -119,7 +127,7 @@ func (l *list) Pop_node(n *node) error {
 	return nil
 }
 
-func (l *list) Remove(elem int) {
+func (l *list[T]) Remove(elem T) {
 
 	for n := l.Begin(); n != l.End(); {
 
@@ -132,14 +140,14 @@ func (l *list) Remove(elem int) {
 	}
 }
 
-func (l *list) Clear() {
+func (l *list[T]) Clear() {
 	for l.size > 0 {
 		l.Pop_front()
 	}
 }
 
 // Output list
-func (l *list) Print_list() {
+func (l *list[T]) Print_list() {
 
 	for n := l.Begin(); n != l.End(); n = n.next {
 		fmt.Printf("%v ", n.elem)
