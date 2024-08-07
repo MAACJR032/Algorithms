@@ -6,7 +6,7 @@ import (
 )
 
 type node struct  {
-	elem any
+	Elem any
 	next *node
 	prev *node
 	list *List
@@ -56,7 +56,7 @@ func New_list() *List {
 	return l
 }
 
-// Checks if the node 'n' is in the list
+// Checks if the node n is in the list
 func (l *List) In_list(n *node) bool {
 	return n.list == l
 }
@@ -105,10 +105,11 @@ func (l *List) Push_back_list(other *List) error {
 	
 	var n *node = other.Begin()
 	for n != other.tail {
-		l.Push_back(n.elem)
+		l.Push_back(n.Elem)
 		n = n.next
 	}
 
+	l.size += other.size
 	return nil
 }
 
@@ -122,22 +123,85 @@ func (l *List) Push_front_list(other *List) error {
 	
 	var n *node = other.End()
 	for n != other.head {
-		l.Push_front(n.elem)
+		l.Push_front(n.Elem)
 		n = n.prev
 	}
 
+	l.size += other.size
+	return nil
+}
+
+// Inserts a another list at the back of list l
+// The other list becomes empty
+func (l *List) Push_back_clear_list(other *List) error {
+	if other.size == 0 {
+		return nil
+	} else if other == nil {
+		return errors.New("other list is nil")
+	}
+	
+	l.tail.prev.next = other.head.next
+	other.head.next.prev = l.tail.prev
+
+	l.tail.prev = other.tail.prev
+	other.tail.prev.next = l.tail
+
+	// Update the list reference for nodes
+	for n := other.head.next; n != other.tail; n = n.next {
+		n.list = l
+	}
+
+	// Empty the other list
+	other.head.next = other.tail
+	other.tail.prev = other.head
+	other.size = 0
+
+	l.size += other.size
+	return nil
+}
+
+// Inserts a another list at the front of list l
+// The other list becomes empty
+func (l *List) Push_front_clear_list(other *List) error {
+	if other.size == 0 {
+		return nil
+	} else if other == nil {
+		return errors.New("other list is nil")
+	}
+
+	l.head.next.prev = other.tail.prev
+	other.tail.prev.next = l.head.next
+
+	l.head.next = other.head.next
+	other.head.next.prev = l.head
+
+	// Update the list reference for nodes
+	for n := other.head.next; n != other.tail; n = n.next {
+		n.list = l
+	}
+
+	// Empty the other list
+	other.head.next = other.tail
+	other.tail.prev = other.head
+	other.size = 0
+
+	l.size += other.size
 	return nil
 }
 
 // Inserts the element after the specified node
-func (l *List) Insert_after(elem any, n *node) {
-	if n == l.tail || !l.In_list(n) {
-		return
+func (l *List) Insert_after(elem any, n *node) error {
+	if n == l.tail {
+		return errors.New("insertion is out of list range")
+	} else if !l.In_list(n) {
+		return errors.New("the node is not on the list")
 	}
 	
 	new_node := New_node(elem, n.next, n, l)
 	n.next.prev = new_node
 	n.next = new_node
+
+	return nil
 }
 
 // Inserts the element before the specified node
@@ -166,7 +230,7 @@ func (l *List) Pop_back() (any, error) {
 	n.next = nil
 	n.prev = nil
 
-	return n.elem, nil
+	return n.Elem, nil
 }
 
 // Removes the first node of the list
@@ -185,7 +249,7 @@ func (l *List) Pop_front() (any, error) {
 	n.next = nil
 	n.prev = nil
 
-    return n.elem, nil
+    return n.Elem, nil
 }
 
 // Removes the specified node of the list
@@ -214,7 +278,7 @@ func (l *List) Pop_node(n *node) (*node, error) {
 func (l *List) Remove(elem any) {
 
 	for n := l.Begin(); n != l.End(); {
-		if n.elem == elem {
+		if n.Elem == elem {
 			n = n.next
 			l.Pop_node(n.prev)
 		} else {
@@ -230,47 +294,45 @@ func (l *List) Clear() {
 	l.size = 0
 }
 
-/* Move functions */
-
-// Moves the e node to after n node
-func (l *List) Move_after(e *node, n *node) {
-	if e == n || e == l.head || e == l.tail || 
-	   n == l.tail || !l.In_list(e) || !l.In_list(n) {
+// Moves the n node to after mark node
+func (l *List) Move_after(n *node, mark *node) {
+	if n == mark || n == l.head || n == l.tail || 
+		mark == l.tail || !l.In_list(n) || !l.In_list(mark) {
 		return
 	}
 
-	e.prev.next = e.next
-	e.next.prev = n.prev
+	n.prev.next = n.next
+	n.next.prev = mark.prev
 	
-	e.next = n.next
-	e.prev = n
+	n.next = mark.next
+	n.prev = mark
 
-	n.next.prev = e
-	n.next = e
+	mark.next.prev = n
+	mark.next = n
 }
 
-// Moves the e node to before n node
-func (l *List) Move_before(e *node, n *node) {
-	if e == n || e == l.head || e == l.tail ||
-	   n == l.head || !l.In_list(e) || !l.In_list(n) {
+// Moves the n node to before mark node
+func (l *List) Move_before(n *node, mark *node) {
+	if n == mark || n == l.head || n == l.tail ||
+	   	mark == l.head || !l.In_list(n) || !l.In_list(mark) {
 		return
 	}
 
-	e.prev.next = e.next
-	e.next.prev = n.prev
+	n.prev.next = n.next
+	n.next.prev = mark.prev
 
-	e.next = n
-	e.prev = n.prev
+	n.next = mark
+	n.prev = mark.prev
 
-	n.prev.next = e
-	n.prev = e
+	mark.prev.next = n
+	mark.prev = n
 }
 
 // Output list
 func (l *List) Print_list() {
 
 	for n := l.Begin(); n != l.tail; n = n.next {
-		fmt.Printf("%v ", n.elem)
+		fmt.Printf("%v ", n.Elem)
 	}
 	fmt.Println()
 }
