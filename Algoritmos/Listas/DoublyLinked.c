@@ -3,11 +3,14 @@
 #include <stdbool.h>
 #include <assert.h>
 
+struct list;
+
 struct node
 {
-    int val;
+    int elem;
     struct node *next;
     struct node *prev;
+    struct list *origin;
 };
 typedef struct node node;
 
@@ -19,33 +22,25 @@ struct list
 };
 typedef struct list list;
 
-node* new_empty_node()
-{
-    node *n = (node *) malloc(sizeof(node));
-    assert(n != NULL);
-
-    return n;
-}
-
-node* new_node(int val, node *next, node *prev)
+node* new_node(int elem, node *next, node *prev)
 {
     node *n = (node *) malloc(sizeof(node));
     assert(n != NULL);
     
-    n->val = val;
+    n->elem = elem;
     n->next = next;
     n->prev = prev;
 
     return n;
 }
 
-list* create_list()
+list* new_list()
 {
     list *l = (list *) malloc(sizeof(list));
     assert(l != NULL);
 
-    l->head = new_empty_node();
-    l->tail = new_empty_node();
+    l->head = new_node(0, NULL, NULL);
+    l->tail = new_node(0, NULL, NULL);
 
     l->head->next = l->tail;
     l->head->prev = NULL;
@@ -60,70 +55,6 @@ list* create_list()
 
 bool empty(const list *l) { return l->head->next == l->tail; }
 
-void push_back(list *l, int val)
-{
-    node *n = new_node(val, l->tail, l->tail->prev);
-    
-    n->prev->next = n;
-    l->tail->prev = n;
-
-    l->size++;
-}
-
-void push_front(list *l, int val)
-{
-    node *n = new_node(val, l->head->next, l->head);
-
-    l->head->next = n;
-    n->next->prev = n;
-
-    l->size++;
-}
-
-int pop_back(list *l)
-{
-    assert(!empty(l));
-    node *temp = l->tail->prev;
-
-    temp->prev->next = l->tail;
-    l->tail->prev = temp->prev;
-
-    int val = temp->val;
-    free(temp);
-
-    l->size--;
-    return val;
-}
-
-int pop_front(list *l)
-{
-    assert(!empty(l));
-    node *temp = l->head->next;
-
-    l->head->next = temp->next;
-    temp->next->prev = l->head;
-
-    int val = temp->val;
-    free(temp);
-
-    l->size--;
-    return val;
-}
-
-int pop_node(list *l, node *n)
-{
-    assert(!empty(l));
-
-    n->next->prev = n->prev;
-    n->prev->next = n->next;
-    
-    int val = n->val;
-    free(n);
-
-    l->size--;
-    return val;
-}
-
 size_t size(const list *l) { return l->size; }
 
 node* begin(const list *l) { return l->head->next; }
@@ -134,11 +65,109 @@ node* rbegin(const list *l) { return l->tail->prev; }
 
 node* rend(const list *l) { return l->head; }
 
-void remove_val(list *l, int val)
+int front(const list *l)
+{
+    assert(l != NULL || !empty(l));
+    return l->head->next->elem;
+}
+
+int back(const list *l)
+{
+    assert(l != NULL || !empty(l));
+    return l->tail->prev->elem;
+}
+
+void push_back(list *l, int elem)
+{
+    node *n = new_node(elem, l->tail, l->tail->prev);
+    
+    n->prev->next = n;
+    l->tail->prev = n;
+
+    l->size++;
+}
+
+void push_front(list *l, int elem)
+{
+    node *n = new_node(elem, l->head->next, l->head);
+
+    l->head->next = n;
+    n->next->prev = n;
+
+    l->size++;
+}
+
+void push_back_list(list *l, const list *src)
+{
+    assert(l != NULL || src != NULL);
+
+    if (empty(src))
+        return;
+
+    for (node *n = begin(src); n != end(src); n = n->next)
+        push_back(l, n->elem);
+}
+
+void push_front_list(list *l, const list *src)
+{
+    assert(l != NULL || src != NULL);
+
+    if (empty(src))
+        return;
+
+    for (node *n = rbegin(src); n != rend(src); n = n->prev)
+        push_front(l, n->elem);
+}
+
+int pop_back(list *l)
+{
+    assert(l != NULL || !empty(l));
+    node *temp = l->tail->prev;
+
+    temp->prev->next = l->tail;
+    l->tail->prev = temp->prev;
+
+    int elem = temp->elem;
+    free(temp);
+
+    l->size--;
+    return elem;
+}
+
+int pop_front(list *l)
+{
+    assert(l != NULL || !empty(l));
+    node *temp = l->head->next;
+
+    l->head->next = temp->next;
+    temp->next->prev = l->head;
+
+    int elem = temp->elem;
+    free(temp);
+
+    l->size--;
+    return elem;
+}
+
+int pop_node(list *l, node *n)
+{
+    assert(l != NULL || !empty(l));
+
+    n->next->prev = n->prev;
+    n->prev->next = n->next;
+    
+    int elem = n->elem;
+    free(n);
+
+    l->size--;
+    return elem;
+}
+
+void remove_elem(list *l, int elem)
 {
     for (node *curr = begin(l); curr != end(l); curr = curr->next)
     {
-        if (curr->val == val)
+        if (curr->elem == elem)
         {
             node *aux = curr->prev;
             pop_node(l, curr);
@@ -159,34 +188,20 @@ void clear(list *l)
 
 void destroy_list(list *l)
 {
-    node *curr = rbegin(l);
-    while (curr != rend(l))
-    {   
-        free(curr->next);
-        curr = curr->prev;
-    }
-    
-    free(curr);
+    clear(l);
     free(l);
 }
 
 void print_list(const list *l)
 {
     for (node *i = begin(l); i != end(l); i = i->next)
-        printf("%d ", i->val);
+        printf("%d ", i->elem);
     printf("\n");
 }
 
 void rprint_list(const list *l)
 {
     for (node *i = rbegin(l); i != rend(l); i = i->prev)
-        printf("%d ", i->val);
+        printf("%d ", i->elem);
     printf("\n");
-}
-
-int main()
-{
-    list *l = create_list();
-
-    return 0;
 }
