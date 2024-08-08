@@ -152,24 +152,24 @@ func (l *List) PushBack_ClearList(other *List) error {
 	} else if other == nil {
 		return errors.New("other list is nil")
 	}
+
+	// Update the list reference for nodes
+	for n := other.head.next; n != other.tail; n = n.next {
+		n.list = l
+	}
 	
 	l.tail.prev.next = other.head.next
 	other.head.next.prev = l.tail.prev
 
 	l.tail.prev = other.tail.prev
 	other.tail.prev.next = l.tail
-
-	// Update the list reference for nodes
-	for n := other.head.next; n != other.tail; n = n.next {
-		n.list = l
-	}
-
+	l.size += other.size
+	
 	// Empty the other list
 	other.head.next = other.tail
 	other.tail.prev = other.head
 	other.size = 0
 
-	l.size += other.size
 	return nil
 }
 
@@ -182,23 +182,23 @@ func (l *List) PushFront_ClearList(other *List) error {
 		return errors.New("other list is nil")
 	}
 
+	// Update the list reference for nodes
+	for n := other.head.next; n != other.tail; n = n.next {
+		n.list = l
+	}
+	
 	l.head.next.prev = other.tail.prev
 	other.tail.prev.next = l.head.next
 
 	l.head.next = other.head.next
 	other.head.next.prev = l.head
-
-	// Update the list reference for nodes
-	for n := other.head.next; n != other.tail; n = n.next {
-		n.list = l
-	}
-
+	l.size += other.size
+	
 	// Empty the other list
 	other.head.next = other.tail
 	other.tail.prev = other.head
 	other.size = 0
 
-	l.size += other.size
 	return nil
 }
 
