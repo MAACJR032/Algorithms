@@ -2,34 +2,39 @@
 #include <stdexcept>
 
 template <typename type>
-struct Node
+class node
 {
-    type elem;
-    Node *next;
-    Node *prev;
+    public:
+        type elem;
+    
+    private:
+        node *next;
+        node *prev;
+
+    node(type elem, node *next, node *prev) : elem(elem), next(next), prev(prev) {}
 };
 
 template <typename type>
-class Doubly_List
+class list
 {
     private:
         size_t size;
-        Node<type> *head;
-        Node<type> *tail;
+        node<type> *head;
+        node<type> *tail;
 
-        void next(Node<type> *&n)
+        node<type> next(const node<type> n)
         {
-            if (n != tail)
-                n = n->next;
+            if (n != tail || n != nullptr)
+                return n.next
         }
 
     public:
-        Doubly_List()
+        list()
         {
             size = 0;
 
-            head = new Node<type>;
-            tail = new Node<type>;
+            head = new node<type>({}, nullptr, nullptr);
+            tail = new node<type>({}, nullptr, nullptr);
 
             head->next = tail;
             head->prev = nullptr;
@@ -37,7 +42,7 @@ class Doubly_List
             tail->next = nullptr;
             tail->prev = head;
         }
-        ~Doubly_List()
+        ~list()
         {
             clear();
             delete head;
@@ -49,12 +54,8 @@ class Doubly_List
         
         void push_back(type elem)
         {
-            Node<type> *new_node = new Node<type>;
+            node<type> *new_node = new node<type>(elem, tail, tail.prev);
 
-            new_node->elem = elem;
-
-            new_node->next = tail;
-            new_node->prev = tail->prev;
             tail->prev->next = new_node;
             tail->prev = new_node;
 
@@ -62,16 +63,21 @@ class Doubly_List
         }
         void push_front(type elem)
         {
-            Node<type> *new_node = new Node<type>;
+            node<type> *new_node = new node<type>(elem, head->next, head);
 
-            new_node->elem = elem;
-
-            new_node->prev = head;
-            new_node->next = head->next;
             head->next = new_node;
             new_node->next->prev = new_node;
 
             size++;
+        }
+        void push_back_list(list *other)
+        {
+            while (!other->empty())
+            {
+                type elem = pop_node(other->begin());
+                other->size--;
+                push_back(elem)
+            }
         }
 
         type pop_back()
@@ -79,7 +85,7 @@ class Doubly_List
             if (size == 0)
                 throw std::runtime_error("Cannot pop from an empty list.");
             
-            Node<type> *temp = tail->prev;
+            node<type> *temp = tail->prev;
             type elem = temp->elem;
 
             tail->prev = tail->prev->prev;
@@ -95,7 +101,7 @@ class Doubly_List
             if (size == 0)
                 throw std::runtime_error("Cannot pop from an empty list.");
             
-            Node<type> *temp = head->next;
+            node<type> *temp = head->next;
             type elem = temp->elem;
 
             head->next = head->next->next;
@@ -106,23 +112,33 @@ class Doubly_List
 
             return elem;
         }
+        type pop_node(node<type> n)
+        {
+            if (n == head || n == tail)
+                throw std::out_of_range("The node is out of range");
+
+            n.prev->next = n.next;
+            n.next->prev = n.prev;
+        
+            return n.elem
+        }
         void remove(type value)
         {
-            for (Node<type> *i = begin(); i != end();)
+            for (node<type> *i = begin(); i != end();)
             {
                 if (i->elem == value)
                 {
-                    Node<type> *temp = i;
+                    node<type> *temp = i;
                     
                     i->prev->next = i->next;
                     i->next->prev = i->prev;
 
-                    next(i);
+                    i = next(i);
                     delete temp;
                     size--;
                 }
                 else
-                    next(i);
+                    i = next(i);
             }
         }
         void clear()
@@ -133,7 +149,7 @@ class Doubly_List
 
         void print_list()
         {
-            Node<type> *curr = head->next;
+            node<type> *curr = head->next;
 
             while (curr != tail)
             {
@@ -143,38 +159,6 @@ class Doubly_List
             std::cout << '\n';
         }
 
-        Node<type> *begin() { return head->next; }
-        Node<type> *end() { return tail; }
+        node<type> *begin() { return head->next; }
+        node<type> *end() { return tail; }
 };
-
-int main()
-{   
-    Doubly_List<int> l;
-
-    l.push_front(10);
-    l.push_front(11);
-    l.push_front(12);
-    l.push_back(13);
-
-    l.print_list();
-
-    std::cout << l.pop_back() << '\n';
-    std::cout << l.pop_front() << '\n';
-    
-    l.print_list();
-    l.clear();
-
-    if (l.empty())
-        std::cout << "empty\n";
-
-    l.push_back(21);
-    l.push_back(21);
-    l.push_back(15);
-    l.push_back(10);
-    l.push_back(21);
-
-    l.remove(21);
-    l.print_list();
-
-    return 0;
-}
