@@ -110,10 +110,10 @@ func (l *List) PushFront(elem any) {
 
 // Inserts a copy of another list at the back of list l.
 func (l *List) PushBackList(other *List) error {
-	if other.size == 0 {
-		return nil
-	} else if other == nil {
+	if other == nil {
 		return errors.New("other list is nil")
+	} else if other.size == 0 {
+		return nil
 	}
 	
 	var n *node = other.Begin()
@@ -128,10 +128,10 @@ func (l *List) PushBackList(other *List) error {
 
 // Inserts a copy of another list at the front of list l.
 func (l *List) PushFrontList(other *List) error {
-	if other.size == 0 {
-		return nil
-	} else if other == nil {
+	if other == nil {
 		return errors.New("other list is nil")
+	} else if other.size == 0 {
+		return nil
 	}
 	
 	var n *node = other.End()
@@ -147,15 +147,10 @@ func (l *List) PushFrontList(other *List) error {
 // Inserts a another list at the back of list l
 // The other list becomes empty
 func (l *List) PushBack_ClearList(other *List) error {
-	if other.size == 0 {
-		return nil
-	} else if other == nil {
+	if other == nil {
 		return errors.New("other list is nil")
-	}
-
-	// Update the list reference for nodes
-	for n := other.head.next; n != other.tail; n = n.next {
-		n.list = l
+	} else if other.size == 0 {
+		return nil
 	}
 	
 	l.tail.prev.next = other.head.next
@@ -163,48 +158,55 @@ func (l *List) PushBack_ClearList(other *List) error {
 
 	l.tail.prev = other.tail.prev
 	other.tail.prev.next = l.tail
-	l.size += other.size
-	
+
+	// Update the list reference for nodes
+	for n := other.head.next; n != other.tail; n = n.next {
+		n.list = l
+	}
+
 	// Empty the other list
 	other.head.next = other.tail
 	other.tail.prev = other.head
 	other.size = 0
 
+	l.size += other.size
 	return nil
 }
 
 // Inserts a another list at the front of list l
 // The other list becomes empty
 func (l *List) PushFront_ClearList(other *List) error {
-	if other.size == 0 {
-		return nil
-	} else if other == nil {
+	if other == nil {
 		return errors.New("other list is nil")
+	} else if other.size == 0 {
+		return nil
 	}
 
-	// Update the list reference for nodes
-	for n := other.head.next; n != other.tail; n = n.next {
-		n.list = l
-	}
-	
 	l.head.next.prev = other.tail.prev
 	other.tail.prev.next = l.head.next
 
 	l.head.next = other.head.next
 	other.head.next.prev = l.head
-	l.size += other.size
-	
+
+	// Update the list reference for nodes
+	for n := other.head.next; n != other.tail; n = n.next {
+		n.list = l
+	}
+
 	// Empty the other list
 	other.head.next = other.tail
 	other.tail.prev = other.head
 	other.size = 0
 
+	l.size += other.size
 	return nil
 }
 
 // Inserts the element after the specified node
 func (l *List) InsertAfter(elem any, n *node) error {
-	if n == l.tail {
+	if n == nil {
+		return errors.New("node is nil")
+	} else if n == l.tail {
 		return errors.New("insertion is out of list range")
 	} else if !l.InList(n) {
 		return errors.New("the node is not on the list")
@@ -219,7 +221,9 @@ func (l *List) InsertAfter(elem any, n *node) error {
 
 // Inserts the element before the specified node
 func (l *List) InsertBefore(elem any, n *node) error {
-	if n == l.head {
+	if n == nil {
+		return errors.New("node is nil")
+	} else if n == l.head {
 		return errors.New("insertion is out of list range")
 	} else if !l.InList(n) {
 		return errors.New("the node is not on the list")
@@ -253,7 +257,6 @@ func (l *List) PopBack() (any, error) {
 
 // Removes the first node of the list
 func (l *List) PopFront() (any, error) {
-
     if l.Empty() {
         return *new(any), errors.New("list is empty")
     }
@@ -272,11 +275,10 @@ func (l *List) PopFront() (any, error) {
 
 // Removes the specified node of the list
 func (l *List) PopNode(n *node) (*node, error) {
-
-	if n == l.head || n == l.tail {
-		return nil, errors.New("node is out of range")
-	} else if n == nil {
+	if n == nil {
 		return nil, errors.New("node is nil")
+	} else if n == l.head || n == l.tail {
+		return nil, errors.New("node is out of range")
 	} else if !l.InList(n) {
 		return nil, nil
 	}
@@ -295,7 +297,7 @@ func (l *List) PopNode(n *node) (*node, error) {
 // Removes all ocurrences of elem
 func (l *List) Remove(elem any) {
 
-	for n := l.Begin(); n != l.End(); {
+	for n := l.Begin(); n != l.End().next; {
 		if n.Elem == elem {
 			n = n.next
 			l.PopNode(n.prev)
@@ -315,7 +317,7 @@ func (l *List) Clear() {
 
 // Moves the n node to after mark node
 func (l *List) MoveAfter(n *node, mark *node) {
-	if n == mark || n == l.head || n == l.tail || 
+	if n == nil || mark == nil || n == mark || n == l.head || n == l.tail || 
 		mark == l.tail || !l.InList(n) || !l.InList(mark) {
 		return
 	}
@@ -332,8 +334,8 @@ func (l *List) MoveAfter(n *node, mark *node) {
 
 // Moves the n node to before mark node
 func (l *List) MoveBefore(n *node, mark *node) {
-	if n == mark || n == l.head || n == l.tail ||
-	   	mark == l.head || !l.InList(n) || !l.InList(mark) {
+	if n == nil || mark == nil || n == mark || n == l.head || n == l.tail ||
+	   mark == l.head || !l.InList(n) || !l.InList(mark) {
 		return
 	}
 
@@ -349,7 +351,7 @@ func (l *List) MoveBefore(n *node, mark *node) {
 
 // Moves the node n of the list to the back 
 func (l *List) MoveToBack(n *node) {
-	if n == l.head || n == l.tail || !l.InList(n) {
+	if n == nil || n == l.head || n == l.tail || !l.InList(n) {
 		return
 	}
 
@@ -365,7 +367,7 @@ func (l *List) MoveToBack(n *node) {
 
 // Moves the node n of the list to the front 
 func (l *List) MoveToFront(n *node) {
-	if n == l.head || n == l.tail || !l.InList(n) {
+	if n == nil || n == l.head || n == l.tail || !l.InList(n) {
 		return
 	}
 
