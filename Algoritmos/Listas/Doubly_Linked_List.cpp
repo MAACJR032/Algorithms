@@ -22,8 +22,8 @@ class node
 {
     public:
         type elem;
-        node *next;
-        node *prev;
+        node<type> *prev;
+        node<type> *next;
         list<type> *origin;
 
         node(type elem, node *next, node *prev, list<type> *origin) : elem(elem), next(next), prev(prev), origin(origin) {}      
@@ -52,22 +52,11 @@ class list
         node<type>* prev(const node<type> *n) const
         {
             if (n == nullptr)
-                throw std::invalid_argument("nullptr passed as argument to next()");
+                throw std::invalid_argument("nullptr passed as argument to prev()");
             else if (n == head)
                 throw std::out_of_range("the node is out of the list range");
 
             return n->prev;
-        }
-
-        node<type>* remove_node(node<type> *n)
-        {
-            if (n == nullptr || n == head || n == tail)
-                throw std::invalid_argument("nullptr passed as argument to next()");
-            
-            n->prev->next = n->next;
-            n->next->prev = n->prev;
-
-            return n;
         }
 
     public:
