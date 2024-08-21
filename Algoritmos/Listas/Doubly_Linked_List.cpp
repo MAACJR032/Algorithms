@@ -3,9 +3,9 @@ Implementation of a doubly linked list
 
 iterating the list
 
-for (node<type> *n = l.begin(); l != l.end(); n = n.next)
+for (node<type> *n = l.begin(); n != l.end(); n = n->next())
 {
-    // do something with n->elem
+    ...
 }
 
 */
@@ -20,13 +20,35 @@ class list;
 template <typename type>
 class node
 {
+    private:
+        node<type> *next_node;
+        node<type> *prev_node;
+        list<type> *origin;
+    
+        friend class list<type>;
+
     public:
         type elem;
-        node<type> *prev;
-        node<type> *next;
-        list<type> *origin;
 
-        node(type elem, node *next, node *prev, list<type> *origin) : elem(elem), next(next), prev(prev), origin(origin) {}      
+        node(type elem, node *next, node *prev, list<type> *origin) : elem(elem), next_node(next), prev_node(prev), origin(origin) {}
+
+        // Returns the next node of n
+        node<type>* next() const
+        {
+            if (this == origin->tail)
+                throw std::out_of_range("the node is out of the list range");
+
+            return next_node;
+        }
+
+        // Returns the previous node of n
+        node<type>* prev() const
+        {
+            if (this == origin->head)
+                throw std::out_of_range("the node is out of the list range");
+
+            return prev_node;
+        }
 };
 
 template <typename type>
@@ -37,27 +59,7 @@ class list
         node<type> *head;
         node<type> *tail;
 
-        // Returns the next node of n
-        node<type>* next(const node<type> *n) const
-        {
-            if (n == nullptr)
-                throw std::invalid_argument("nullptr passed as argument to next()");
-            else if (n == tail)
-                throw std::out_of_range("the node is out of the list range");
-
-            return n->next;
-        }
-
-        // Returns the previous node of n
-        node<type>* prev(const node<type> *n) const
-        {
-            if (n == nullptr)
-                throw std::invalid_argument("nullptr passed as argument to prev()");
-            else if (n == head)
-                throw std::out_of_range("the node is out of the list range");
-
-            return n->prev;
-        }
+        friend class node<type>;
 
     public:
         list()
@@ -67,11 +69,11 @@ class list
             head = new node<type>({}, nullptr, nullptr, this);
             tail = new node<type>({}, nullptr, nullptr, this);
 
-            head->next = tail;
-            head->prev = nullptr;
+            head->next_node = tail;
+            head->prev_node = nullptr;
 
-            tail->next = nullptr;
-            tail->prev = head;
+            tail->next_node = nullptr;
+            tail->prev_node = head;
         }
         ~list()
         {
@@ -90,7 +92,7 @@ class list
         bool in_list(const node<type> *n) const { return n->origin == this; }
 
         // Returns the first element of the list
-        node<type> *begin() const { return head->next; }
+        node<type> *begin() const { return head->next_node; }
 
         // Returns the tail (after the last element) of the list
         node<type> *end() const { return tail; }
@@ -98,10 +100,10 @@ class list
         // Insert elem to the end of the list
         void push_back(type elem)
         {
-            node<type> *new_node = new node<type>(elem, tail, tail->prev, this);
+            node<type> *new_node = new node<type>(elem, tail, tail->prev_node, this);
 
-            tail->prev->next = new_node;
-            tail->prev = new_node;
+            tail->prev_node->next_node = new_node;
+            tail->prev_node = new_node;
 
             size++;
         }
@@ -109,10 +111,10 @@ class list
         // Insert elem to the begining of the list
         void push_front(type elem)
         {
-            node<type> *new_node = new node<type>(elem, head->next, head, this);
+            node<type> *new_node = new node<type>(elem, head->next_node, head, this);
 
-            head->next = new_node;
-            new_node->next->prev = new_node;
+            head->next_node = new_node;
+            new_node->next_node->prev_node = new_node;
 
             size++;
         }
@@ -126,8 +128,8 @@ class list
             
             n->origin = this;
 
-            tail->prev->next = n;
-            tail->prev = n;
+            tail->prev_node->next_node = n;
+            tail->prev_node = n;
 
             size++;
         }
@@ -141,18 +143,15 @@ class list
             
             n->origin = this;
 
-            head->next = n;
-            n->next->prev = n;
+            head->next_node = n;
+            n->next_node->prev_node = n;
 
             size++;
         }
         
         // Insert copies of the other list elements to the end of this list
-        void push_back_list(list<type> &other)
+        void push_back_list(const list<type> &other)
         {
-            if (other == nullptr)
-                throw std::invalid_argument("nullptr node passed as argument to push_back_list()");
-            
             if (other.empty())
                 return;
 
@@ -165,10 +164,13 @@ class list
         }
 
         // Insert copies of the other list elements to the begining of this list
-        void push_front_list(list &other)
+        void push_front_list(const list &other)
         {
-            node<type> *n = other.end()->prev;
-            while (n != other.begin()->prev)
+            if (other.empty())
+                return;
+            
+            node<type> *n = other.end()->prev_node;
+            while (n != other.begin()->prev_node)
             {
                 push_front(n->elem);
                 n = prev(n);
@@ -187,20 +189,20 @@ class list
             while (n != other.end())
             {
                 n->origin = this;
-                n = n->next;
+                n = n->next_node;
             }
 
-            tail->prev->next = other.head->next;
-            other.head->next->prev = tail->prev;
+            tail->prev_node->next_node = other.head->next_node;
+            other.head->next_node->prev_node = tail->prev_node;
 
-            tail->prev = other.tail->prev;
-            other.tail->prev->next = tail;
+            tail->prev_node = other.tail->prev_node;
+            other.tail->prev_node->next_node = tail;
 
             size += other.size;
             
             // Clear other list
-            other.head->next = other.tail;
-            other.tail->prev = other.head;
+            other.head->next_node = other.tail;
+            other.tail->prev_node = other.head;
             other.size = 0;        
         }
 
@@ -216,20 +218,20 @@ class list
             while (n != other.end())
             {
                 n->origin = this;
-                n = n->next;
+                n = n->next_node;
             }
 
-            head->next->prev = other.tail->prev;
-            other.tail->prev->next = head->next;
+            head->next_node->prev_node = other.tail->prev_node;
+            other.tail->prev_node->next_node = head->next_node;
 
-            head->next = other.head->next;
-            other.head->next->prev = head;
+            head->next_node = other.head->next_node;
+            other.head->next_node->prev_node = head;
 
             size += other.size;
             
             // Clear other list
-            other.head->next = other.tail;
-            other.tail->prev = other.head;
+            other.head->next_node = other.tail;
+            other.tail->prev_node = other.head;
             other.size = 0;        
         }
 
@@ -240,11 +242,11 @@ class list
             if (size == 0)
                 throw std::runtime_error("Cannot pop from an empty list.");
             
-            node<type> *temp = tail->prev;
+            node<type> *temp = tail->prev_node;
             type elem = temp->elem;
 
-            tail->prev = tail->prev->prev;
-            tail->prev->next = tail;
+            tail->prev_node = tail->prev_node->prev_node;
+            tail->prev_node->next_node = tail;
             size--;
             
             delete temp;
@@ -257,11 +259,11 @@ class list
             if (size == 0)
                 throw std::runtime_error("Cannot pop from an empty list.");
             
-            node<type> *temp = head->next;
+            node<type> *temp = head->next_node;
             type elem = temp->elem;
 
-            head->next = head->next->next;
-            head->next->prev = head;
+            head->next_node = head->next_node->next_node;
+            head->next_node->prev_node = head;
             size--;
             
             delete temp;
@@ -278,8 +280,8 @@ class list
             else if (!in_list(n))
                 throw std::invalid_argument("The node does not belong to this list");
             
-            n->prev->next = n->next;
-            n->next->prev = n->prev;
+            n->prev_node->next_node = n->next_node;
+            n->next_node->prev_node = n->prev_node;
             n->origin = nullptr;
             size--;
             
@@ -295,8 +297,8 @@ class list
                 {
                     node<type> *temp = i;
                     
-                    i->prev->next = i->next;
-                    i->next->prev = i->prev;
+                    i->prev_node->next_node = i->next_node;
+                    i->next_node->prev_node = i->prev_node;
 
                     i = next(i);
                     delete temp;
@@ -322,7 +324,7 @@ class list
             while (curr != end())
             {
                 std::cout << curr->elem << ' ';
-                curr = curr->next;
+                curr = curr->next_node;
             }
             std::cout << '\n';
         }
