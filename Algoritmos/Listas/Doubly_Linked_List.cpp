@@ -97,6 +97,12 @@ class list
             delete tail;
         }
 
+        void operator= (const list<type> &other)
+        {
+            clear();
+            push_back_list(other);
+        }
+
         // Returns the size of the list
         int get_size() const { return size; }
 
