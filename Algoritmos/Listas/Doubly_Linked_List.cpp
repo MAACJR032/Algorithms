@@ -75,6 +75,21 @@ class list
             tail->next_node = nullptr;
             tail->prev_node = head;
         }
+        list(const list<type> &other)
+        {
+            size = 0;
+
+            head = new node<type>({}, nullptr, nullptr, this);
+            tail = new node<type>({}, nullptr, nullptr, this);
+
+            head->next_node = tail;
+            head->prev_node = nullptr;
+
+            tail->next_node = nullptr;
+            tail->prev_node = head;
+
+            push_back_list(other);
+        }
         ~list()
         {
             clear();
@@ -159,7 +174,7 @@ class list
             while (n != other.end())
             {
                 push_back(n->elem);
-                n = next(n);
+                n = n->next();
             }
         }
 
@@ -173,7 +188,7 @@ class list
             while (n != other.begin()->prev_node)
             {
                 push_front(n->elem);
-                n = prev(n);
+                n = n->prev();
             }
         }
 
@@ -313,7 +328,9 @@ class list
         void clear()
         {
             while (size > 0)
+            {
                 pop_front();
+            }
         }
 
 
