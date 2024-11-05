@@ -51,7 +51,7 @@ type List[T any] struct {
 	tail *node[T]
 }
 
-// Returns a new and initialized list
+// Returns a new list
 func NewList[T any]() *List[T] {
 	l := &List[T] {
 		size: 0,
@@ -313,7 +313,6 @@ func (l *List[T]) Clear() {
 	l.size = 0
 }
 
-
 // Moves the n node to after mark node
 func (l *List[T]) MoveAfter(n *node[T], mark *node[T]) {
 	if n == nil || mark == nil || n == mark || n == l.head || n == l.tail || 
@@ -380,7 +379,7 @@ func (l *List[T]) MoveToFront(n *node[T]) {
 	l.tail.prev = n
 }
 
-// Reverses reverses the order of elements in the list
+// Reverses the order of elements in the list
 func (l *List[T]) Reverse() {
 	if l.size <= 1 {
 		return
